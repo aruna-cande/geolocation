@@ -1,6 +1,6 @@
 package geolocation
 
-type geolocationModel struct {
+type geolocation struct {
 	uuid string
 	ipAddress string
 	countryCode string

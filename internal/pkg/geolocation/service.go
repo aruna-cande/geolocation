@@ -1,23 +1,38 @@
 package geolocation
 
+import (
+	"context"
+	"fmt"
+)
+
 type Service interface {
-	ImportGeoloacationData(geolocation geolocationModel)
-	GetGeolocationByIp(ipAdrress string)
+	ImportGeolocationData(ctx context.Context, geolocation geolocation)
+	GetGeolocationByIp(ctx context.Context, ipAdrress string)(*geolocation, error)
 }
 
 type service struct {
-	gr FirestoreRepository
+	fr FirestoreRepository
 }
 
-func newService(repository firestoreRepository) Service  {
+func newService(repository FirestoreRepository) Service  {
 	return &service{repository}
 }
 
-func (s service) ImportGeoloacationData(geolocation geolocationModel) {
-	panic("implement me")
+func (s *service) ImportGeolocationData(ctx context.Context, geolocation geolocation) {
+	err := s.fr.AddGeolocation(ctx, geolocation)
+
+	//if err != nil
+	fmt.Println("Failed ", err.Error())
 }
 
-func (s service) GetGeolocationByIp(ipAdrress string) {
-	panic("implement me")
+func (s *service) GetGeolocationByIp(ctx context.Context, ipAdrress string) (*geolocation, error){
+	gsData, err := s.fr.GetGeolocationByIp(ctx, ipAdrress)
+
+	if err != nil{
+		return nil, err
+	}
+
+	return gsData, nil
+
 }
 

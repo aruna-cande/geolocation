@@ -7,8 +7,8 @@ import (
 )
 
 type FirestoreRepository interface {
-	AddGeolocation(ctx context.Context, geolocation geolocationModel) error
-	GetGeolocationByIp(ctx context.Context, ipAddress string) (*geolocationModel, error)
+	AddGeolocation(ctx context.Context, geolocation geolocation) error
+	GetGeolocationByIp(ctx context.Context, ipAddress string) (*geolocation, error)
 }
 
 type firestoreRepository struct {
@@ -27,12 +27,12 @@ func (r firestoreRepository) geolocationCollection() *firestore.CollectionRef {
 	return r.firestoreClient.Collection("geolocation")
 }
 
-func (r *firestoreRepository) AddGeolocation(ctx context.Context, geolocation geolocationModel) error {
+func (r *firestoreRepository) AddGeolocation(ctx context.Context, geolocation geolocation) error {
 	_, err := r.geolocationCollection().Doc(geolocation.uuid).Set(ctx, geolocation)
 	return err
 }
 
-func (r *firestoreRepository) GetGeolocationByIp(ctx context.Context, ipAddress string) (*geolocationModel, error) {
+func (r *firestoreRepository) GetGeolocationByIp(ctx context.Context, ipAddress string) (*geolocation, error) {
 	iter := r.geolocationCollection().Select("ipAddress", "==", ipAddress).Limit(1).Documents(ctx)
 
 	doc, err := iter.Next()
