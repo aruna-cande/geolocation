@@ -1,46 +1,65 @@
 package geolocation
 
 import (
-	"cloud.google.com/go/firestore"
-	"context"
-	"fmt"
+	"database/sql"
 )
 
-type FirestoreRepository interface {
-	AddGeolocation(ctx context.Context, geolocation geolocation) error
-	GetGeolocationByIp(ctx context.Context, ipAddress string) (*geolocation, error)
+type PostgresRepository interface {
+	AddGeolocation(geolocation geolocation) error
+	GetGeolocationByIp(ipAddress string) (*geolocation, error)
 }
 
-type firestoreRepository struct {
-	firestoreClient *firestore.Client
+type postgresRepository struct {
+	db *sql.DB
 }
 
 func NewGeolocationFirestoreRepository(
-	firestoreClient *firestore.Client,
-) FirestoreRepository {
-	return &firestoreRepository{
-		firestoreClient: firestoreClient,
+	pgClient *sql.DB,
+) PostgresRepository {
+	return &postgresRepository{
+		db: pgClient,
 	}
 }
 
-func (r firestoreRepository) geolocationCollection() *firestore.CollectionRef {
-	return r.firestoreClient.Collection("geolocation")
+func (r *postgresRepository) AddGeolocation(geolocation geolocation) error {
+	stmt, err := r.db.Prepare(`
+		Insert INTO geolocation (id, ipAddress, countryCode, country, city, latitude, longitude, mysteryValue) 
+		values($1,$2,$3,$4,$5,$6,$7,$8)`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(
+		geolocation.id,
+		geolocation.ipAddress,
+		geolocation.countryCode,
+		geolocation.country,
+		geolocation.city,
+		geolocation.latitude,
+		geolocation.longitude,
+		geolocation.mysteryValue,
+	)
+	if err != nil {
+		return err
+	}
+	err = stmt.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (r *firestoreRepository) AddGeolocation(ctx context.Context, geolocation geolocation) error {
-	_, err := r.geolocationCollection().Doc(geolocation.uuid).Set(ctx, geolocation)
-	return err
-}
-
-func (r *firestoreRepository) GetGeolocationByIp(ctx context.Context, ipAddress string) (*geolocation, error) {
-	iter := r.geolocationCollection().Select("ipAddress", "==", ipAddress).Limit(1).Documents(ctx)
-
-	doc, err := iter.Next()
-
+func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*geolocation, error) {
+	stmt, err := r.db.Prepare(`SELECT id, ipAddress, countryCode, country, city, latitude, longitude, mysteryValue FROM book WHERE ipAddress = $1`)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Sprintln(doc.Data(), nil)
+	var geoModel geolocation
+	row := stmt.QueryRow(ipAddress)
 
-	return nil, nil
+	err = row.Scan( &geoModel.id, &geoModel.ipAddress, &geoModel.countryCode, &geoModel.country, &geoModel.city, &geoModel.latitude, geoModel.longitude, geoModel.mysteryValue)
+	if err == sql.ErrNoRows{
+		return nil, err
+	}
+
+	return &geoModel, nil
 }
