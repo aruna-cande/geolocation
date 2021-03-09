@@ -1,4 +1,4 @@
-package geolocation_api
+package handler
 
 import (
 	"Geolocation/internal/pkg/geolocation"
@@ -13,7 +13,7 @@ import (
 func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service geolocation.Service){
 	r.Handle("/api/geolocation/{ipAddress}", n.With(
 		negroni.Wrap(GetGeolocationByIp(service)),
-	)).Methods("DELETE", "OPTIONS").Name("deleteBook")
+	)).Methods("GET", "OPTIONS").Name("GetGeolocationByIp")
 }
 
 func GetGeolocationByIp(service geolocation.Service) http.Handler{

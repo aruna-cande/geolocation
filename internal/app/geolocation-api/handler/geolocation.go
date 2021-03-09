@@ -1,4 +1,4 @@
-package geolocation_api
+package handler
 
 type geolocationResult struct {
 	ipAddress string
