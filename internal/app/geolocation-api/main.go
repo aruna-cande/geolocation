@@ -5,18 +5,28 @@ import (
 	"Geolocation/internal/pkg/geolocation"
 	"database/sql"
 	"fmt"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/urfave/negroni"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
-	connectionString := getConnectionString()
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+
+	initDatabase(user, password, dbname)
+
+	connectionString := getConnectionString(user, password, dbname)
 	db, err := sql.Open("postgres", connectionString)
-	createTableGeolocation(db)
+	defer db.Close()
+
+	createTableGeolocations(db)
 
 	if err != nil {
 		fmt.Sprintln("erro", err)
@@ -37,10 +47,10 @@ func main() {
 	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
 
 	srv := &http.Server{
-		//ReadTimeout:  5 * time.Second,
-		//WriteTimeout: 10 * time.Second,
-		//Addr:         ":" + os.Getenv("API_PORT"),
-		//Handler:      context.ClearHandler(http.DefaultServeMux),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Addr:         ":" + os.Getenv("API_PORT"),
+		Handler:      context.ClearHandler(http.DefaultServeMux),
 		ErrorLog:     logger,
 	}
 	err = srv.ListenAndServe()
@@ -49,16 +59,15 @@ func main() {
 	}
 }
 
-func getConnectionString() string {
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	//dbname := os.Getenv("POSTGRES_DB")
-	return fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, "test")
+func getConnectionString(user string, password string, dbname string) string {
+	return fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
 }
 
-func createTableGeolocation(db *sql.DB) {
-	dbname := os.Getenv("POSTGRES_DB")
-	query := fmt.Sprintf("SELECT datname FROM pg_database WHERE datname='%s'", dbname)
+func initDatabase(user string, password string, appDbname string) {
+	db, err := sql.Open("postgres", getConnectionString(user, password, "postgres"))
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT datname FROM pg_database WHERE datname='%s'", appDbname)
 	stmt, err := db.Prepare(query)
 
 	if err != nil {
@@ -67,13 +76,17 @@ func createTableGeolocation(db *sql.DB) {
 	var result string
 	err = stmt.QueryRow().Scan(&result)
 
-	if err == sql.ErrNoRows && result == ""{
+	if err == sql.ErrNoRows && result == "" {
 		_, err := db.Exec("CREATE DATABASE geolocation")
 		if err != nil {
 			panic(err)
 		}
+	}
+}
 
-		_, er := db.Exec(`CREATE TABLE IF NOT EXISTS geolocation (
+func createTableGeolocations(db *sql.DB) {
+	_, er := db.Exec(`
+		CREATE TABLE IF NOT EXISTS geolocation (
 		id uuid NOT NULL,
 		ipaddress TEXT NOT NULL,
 		countrycode TEXT NOT NULL,
@@ -85,9 +98,8 @@ func createTableGeolocation(db *sql.DB) {
 		PRIMARY KEY (id)
 	)`)
 
-		if er != nil {
-			panic(er)
-		}
+	if er != nil {
+		panic(er)
 	}
 }
 

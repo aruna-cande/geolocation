@@ -49,7 +49,7 @@ func (r *postgresRepository) AddGeolocation(geolocation geolocation) error {
 }
 
 func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*geolocation, error) {
-	stmt, err := r.db.Prepare(`SELECT id, ipAddress, countryCode, country, city, latitude, longitude, mysteryValue FROM book WHERE ipAddress = $1`)
+	stmt, err := r.db.Prepare(`SELECT id, ipAddress, countryCode, country, city, latitude, longitude, mysteryValue FROM geolocation WHERE ipAddress = $1`)
 	if err != nil {
 		return nil, err
 	}

@@ -11,14 +11,14 @@ import (
 
 
 func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service geolocation.Service){
-	r.Handle("/api/geolocation/{ipAddress}", n.With(
+	r.Handle("/api/geolocations", n.With(
 		negroni.Wrap(GetGeolocationByIp(service)),
 	)).Methods("GET", "OPTIONS").Name("GetGeolocationByIp")
 }
 
 func GetGeolocationByIp(service geolocation.Service) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ipAddress := r.URL.Query().Get("ipAddress")
+		ipAddress := r.URL.Query().Get("ipaddress")
 		data, err := service.GetGeolocationByIp(ipAddress)
 
 		fmt.Sprintln("data value: ", data)

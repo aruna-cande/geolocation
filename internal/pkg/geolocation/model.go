@@ -11,8 +11,19 @@ type geolocation struct {
 	mysteryValue int
 }
 
-func NewGeolocation(uuid string, countryCode string, country string, city string, latitude float32, longitude float32, mysteryValue int) {
-
+func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude float32, longitude float32, mysteryValue int) *geolocation {
+	if ipAddress == "" || countryCode  == "" || country =="" || city=="" || latitude >=90 || latitude <= -90 || longitude >=180 || longitude <= -180 {
+		return nil
+	}
+	return &geolocation{
+		ipAddress:   ipAddress,
+		countryCode:  countryCode,
+		country:      country,
+		city:         city,
+		latitude:     latitude,
+		longitude:    longitude,
+		mysteryValue: mysteryValue,
+	}
 }
 
 func (g geolocation) GetUuid() string {
