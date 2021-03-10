@@ -2,10 +2,12 @@ package geolocation
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 )
 
-type PostgresRepository interface {
-	AddGeolocation(geolocation *geolocation) error
+type Repository interface {
+	AddGeolocation(geolocations []*geolocation) error
 	GetGeolocationByIp(ipAddress string) (*geolocation, error)
 }
 
@@ -15,29 +17,33 @@ type postgresRepository struct {
 
 func NewGeolocationFirestoreRepository(
 	pgClient *sql.DB,
-) PostgresRepository {
+) Repository {
 	return &postgresRepository{
 		db: pgClient,
 	}
 }
 
-func (r *postgresRepository) AddGeolocation(geolocation *geolocation) error {
-	stmt, err := r.db.Prepare(`
-		Insert INTO geolocation (Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
-		values($1,$2,$3,$4,$5,$6,$7,$8)`)
+func (r *postgresRepository) AddGeolocation(geolocations []*geolocation) error {
+	var values []string
+	var args []interface{}
+	for  _, geolocation := range geolocations {
+		values = append(values, "(?, ?, ?, ?, ?, ?, ?)")
+		args = append(args, geolocation.IpAddress)
+		args = append(args, geolocation.CountryCode)
+		args = append(args, geolocation.Country)
+		args = append(args, geolocation.City)
+		args = append(args, geolocation.Latitude)
+		args = append(args, geolocation.Longitude)
+		args = append(args, geolocation.MysteryValue)
+	}
+
+	stmt, err := r.db.Prepare(fmt.Sprintf(`
+		Insert INTO geolocation (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
+		values %s`, strings.Join(values, ",")))
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(
-		geolocation.Id,
-		geolocation.IpAddress,
-		geolocation.CountryCode,
-		geolocation.Country,
-		geolocation.City,
-		geolocation.Latitude,
-		geolocation.Longitude,
-		geolocation.MysteryValue,
-	)
+	_, err = stmt.Exec(args)
 	if err != nil {
 		return err
 	}

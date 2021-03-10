@@ -13,28 +13,30 @@ type geolocation struct {
 	City         string
 	Latitude     float64
 	Longitude    float64
-	MysteryValue int
+	MysteryValue int64
 }
 
-func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude string, longitude string, mysteryValue int) *geolocation {
-	flatitude, err := strconv.ParseFloat(latitude,64)
+func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude string, longitude string, mysteryValue string) *geolocation {
+	floatLatitude, err := strconv.ParseFloat(latitude,64)
 	if err != nil {
 		return nil
 	}
 
-	flongitude, err := strconv.ParseFloat(longitude, 64)
+	floatLongitude, err := strconv.ParseFloat(longitude, 64)
 	if err != nil {
 		return nil
 	}
+
+	intMysteryValue, err := strconv.ParseInt(mysteryValue,10, 64)
 
 	geoData := &geolocation{
 		IpAddress:    ipAddress,
 		CountryCode:  countryCode,
 		Country:      country,
 		City:         city,
-		Latitude:     flatitude,
-		Longitude:    flongitude,
-		MysteryValue: mysteryValue,
+		Latitude:     floatLatitude,
+		Longitude:    floatLongitude,
+		MysteryValue: intMysteryValue,
 	}
 	err = geoData.Validate()
 	if err != nil{
