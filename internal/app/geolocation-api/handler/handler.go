@@ -35,12 +35,12 @@ func GetGeolocationByIp(service geolocation.Service) http.Handler{
 		}
 
 		geoData := &geolocationResult{
-			ipAddress:   data.GetIpAddress(),
-			countryCode: data.GetCountryCode(),
-			country:     data.GetCountry(),
-			city:        data.GetCity(),
-			latitude:    data.GetLatitude(),
-			longitude:   data.GetLongitude(),
+			ipAddress:   data.IpAddress,
+			countryCode: data.CountryCode,
+			country:     data.Country,
+			city:        data.City,
+			latitude:    data.Latitude,
+			longitude:   data.Longitude,
 		}
 
 		if err := json.NewEncoder(w).Encode(geoData); err != nil {

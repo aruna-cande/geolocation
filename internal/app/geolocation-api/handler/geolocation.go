@@ -5,6 +5,6 @@ type geolocationResult struct {
 	countryCode string
 	country string
 	city string
-	latitude float32
-	longitude float32
+	latitude float64
+	longitude float64
 }

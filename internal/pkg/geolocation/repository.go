@@ -5,7 +5,7 @@ import (
 )
 
 type PostgresRepository interface {
-	AddGeolocation(geolocation geolocation) error
+	AddGeolocation(geolocation *geolocation) error
 	GetGeolocationByIp(ipAddress string) (*geolocation, error)
 }
 
@@ -21,22 +21,22 @@ func NewGeolocationFirestoreRepository(
 	}
 }
 
-func (r *postgresRepository) AddGeolocation(geolocation geolocation) error {
+func (r *postgresRepository) AddGeolocation(geolocation *geolocation) error {
 	stmt, err := r.db.Prepare(`
-		Insert INTO geolocation (id, ipAddress, countryCode, country, city, latitude, longitude, mysteryValue) 
+		Insert INTO geolocation (Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
 		values($1,$2,$3,$4,$5,$6,$7,$8)`)
 	if err != nil {
 		return err
 	}
 	_, err = stmt.Exec(
-		geolocation.id,
-		geolocation.ipAddress,
-		geolocation.countryCode,
-		geolocation.country,
-		geolocation.city,
-		geolocation.latitude,
-		geolocation.longitude,
-		geolocation.mysteryValue,
+		geolocation.Id,
+		geolocation.IpAddress,
+		geolocation.CountryCode,
+		geolocation.Country,
+		geolocation.City,
+		geolocation.Latitude,
+		geolocation.Longitude,
+		geolocation.MysteryValue,
 	)
 	if err != nil {
 		return err
@@ -49,14 +49,14 @@ func (r *postgresRepository) AddGeolocation(geolocation geolocation) error {
 }
 
 func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*geolocation, error) {
-	stmt, err := r.db.Prepare(`SELECT id, ipAddress, countryCode, country, city, latitude, longitude, mysteryValue FROM geolocation WHERE ipAddress = $1`)
+	stmt, err := r.db.Prepare(`SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocation WHERE IpAddress = $1`)
 	if err != nil {
 		return nil, err
 	}
 	var geoModel geolocation
 	row := stmt.QueryRow(ipAddress)
 
-	err = row.Scan( &geoModel.id, &geoModel.ipAddress, &geoModel.countryCode, &geoModel.country, &geoModel.city, &geoModel.latitude, geoModel.longitude, geoModel.mysteryValue)
+	err = row.Scan( &geoModel.Id, &geoModel.IpAddress, &geoModel.CountryCode, &geoModel.Country, &geoModel.City, &geoModel.Latitude, geoModel.Longitude, geoModel.MysteryValue)
 	if err == sql.ErrNoRows{
 		return nil, err
 	}

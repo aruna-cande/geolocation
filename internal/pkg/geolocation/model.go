@@ -1,60 +1,54 @@
 package geolocation
 
+import (
+	"errors"
+	"strconv"
+)
+
 type geolocation struct {
-	id           string
-	ipAddress    string
-	countryCode  string
-	country      string
-	city         string
-	latitude     float32
-	longitude    float32
-	mysteryValue int
+	Id           string
+	IpAddress    string
+	CountryCode  string
+	Country      string
+	City         string
+	Latitude     float64
+	Longitude    float64
+	MysteryValue int
 }
 
-func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude float32, longitude float32, mysteryValue int) *geolocation {
-	if ipAddress == "" || countryCode  == "" || country =="" || city=="" || latitude >=90 || latitude <= -90 || longitude >=180 || longitude <= -180 {
+func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude string, longitude string, mysteryValue int) *geolocation {
+	flatitude, err := strconv.ParseFloat(latitude,64)
+	if err != nil {
 		return nil
 	}
-	return &geolocation{
-		ipAddress:   ipAddress,
-		countryCode:  countryCode,
-		country:      country,
-		city:         city,
-		latitude:     latitude,
-		longitude:    longitude,
-		mysteryValue: mysteryValue,
+
+	flongitude, err := strconv.ParseFloat(longitude, 64)
+	if err != nil {
+		return nil
 	}
+
+	geoData := &geolocation{
+		IpAddress:    ipAddress,
+		CountryCode:  countryCode,
+		Country:      country,
+		City:         city,
+		Latitude:     flatitude,
+		Longitude:    flongitude,
+		MysteryValue: mysteryValue,
+	}
+	err = geoData.Validate()
+	if err != nil{
+		return nil
+	}
+
+	return geoData
 }
 
-func (g geolocation) GetUuid() string {
-	return g.id
-}
+func (g * geolocation) Validate() error  {
 
-func (g geolocation) GetIpAddress() string {
-	return g.ipAddress
-}
-
-func (g geolocation) GetCountryCode() string {
-	return g.countryCode
-}
-
-func (g geolocation) GetCountry() string {
-	return g.country
-}
-
-func (g geolocation) GetCity() string {
-	return g.city
-}
-
-func (g geolocation) GetLatitude() float32 {
-	return g.latitude
-}
-
-func (g geolocation) GetLongitude() float32 {
-	return g.longitude
-}
-
-func (g geolocation) GetMysteryValue() int {
-	return g.mysteryValue
+	if g.IpAddress == "" || g.CountryCode  == "" || g.Country =="" || g.City=="" || g.Latitude >=90 || g.Latitude <= -90 || g.Longitude >=180 || g.Longitude <= -180 {
+		return errors.New("invalid location")
+	}
+	return nil
 }
 
