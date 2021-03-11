@@ -15,7 +15,7 @@ type postgresRepository struct {
 	db *sql.DB
 }
 
-func NewGeolocationFirestoreRepository(
+func NewGeolocationPostgresRepository(
 	pgClient *sql.DB,
 ) Repository {
 	return &postgresRepository{

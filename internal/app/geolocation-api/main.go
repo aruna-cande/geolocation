@@ -32,7 +32,7 @@ func main() {
 		fmt.Sprintln("erro", err)
 	}
 
-	postgresRepository := geolocation.NewGeolocationFirestoreRepository(db)
+	postgresRepository := geolocation.NewGeolocationPostgresRepository(db)
 	geolocationService := geolocation.NewService(postgresRepository)
 
 	r := mux.NewRouter()
