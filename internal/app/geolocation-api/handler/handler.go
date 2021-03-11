@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"Geolocation/internal/pkg/geolocation"
+	"Geolocation/internal/pkg/geolocation/service"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -10,13 +10,13 @@ import (
 )
 
 
-func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service geolocation.Service){
+func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service service.Service){
 	r.Handle("/api/geolocations", n.With(
 		negroni.Wrap(GetGeolocationByIp(service)),
 	)).Methods("GET", "OPTIONS").Name("GetGeolocationByIp")
 }
 
-func GetGeolocationByIp(service geolocation.Service) http.Handler{
+func GetGeolocationByIp(service service.Service) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ipAddress := r.URL.Query().Get("ipaddress")
 		data, err := service.GetGeolocationByIp(ipAddress)

@@ -1,14 +1,15 @@
-package geolocation
+package adapters
 
 import (
+	"Geolocation/internal/pkg/geolocation/domain"
 	"database/sql"
 	"fmt"
 	"strings"
 )
 
 type Repository interface {
-	AddGeolocation(geolocations []*geolocation) error
-	GetGeolocationByIp(ipAddress string) (*geolocation, error)
+	AddGeolocation(geolocations []*domain.Geolocation) (int64, error)
+	GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error)
 }
 
 type postgresRepository struct {
@@ -23,7 +24,7 @@ func NewGeolocationPostgresRepository(
 	}
 }
 
-func (r *postgresRepository) AddGeolocation(geolocations []*geolocation) error {
+func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) (int64, error) {
 	var values []string
 	var args []interface{}
 	for  _, geolocation := range geolocations {
@@ -41,25 +42,30 @@ func (r *postgresRepository) AddGeolocation(geolocations []*geolocation) error {
 		Insert INTO geolocation (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
 		values %s`, strings.Join(values, ",")))
 	if err != nil {
-		return err
+		return int64(len(geolocations)), err
 	}
-	_, err = stmt.Exec(args)
+	result, err := stmt.Exec(args)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	err = stmt.Close()
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, nil
 }
 
-func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*geolocation, error) {
+func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
 	stmt, err := r.db.Prepare(`SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocation WHERE IpAddress = $1`)
 	if err != nil {
 		return nil, err
 	}
-	var geoModel geolocation
+	var geoModel domain.Geolocation
 	row := stmt.QueryRow(ipAddress)
 
 	err = row.Scan( &geoModel.Id, &geoModel.IpAddress, &geoModel.CountryCode, &geoModel.Country, &geoModel.City, &geoModel.Latitude, geoModel.Longitude, geoModel.MysteryValue)
