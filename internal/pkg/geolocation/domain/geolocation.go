@@ -15,7 +15,7 @@ type Geolocation struct {
 	City         string
 	Latitude     float64
 	Longitude    float64
-	MysteryValue int64
+	MysteryValue string
 }
 
 func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude string, longitude string, mysteryValue string) *Geolocation {
@@ -29,8 +29,6 @@ func NewGeolocation(ipAddress, countryCode string, country string, city string, 
 		return nil
 	}
 
-	intMysteryValue, err := strconv.ParseInt(mysteryValue,10, 64)
-
 	geoData := &Geolocation{
 		IpAddress:    ipAddress,
 		CountryCode:  countryCode,
@@ -38,7 +36,7 @@ func NewGeolocation(ipAddress, countryCode string, country string, city string, 
 		City:         city,
 		Latitude:     floatLatitude,
 		Longitude:    floatLongitude,
-		MysteryValue: intMysteryValue,
+		MysteryValue: mysteryValue,
 	}
 	err = geoData.Validate()
 	if err != nil{
@@ -58,6 +56,10 @@ func (g *Geolocation) Validate() error  {
 
 	if g.Latitude >=90 || g.Latitude <= -90 || g.Longitude >=180 || g.Longitude <= -180{
 		return errors.New("Invalid geografical cordinates")
+	}
+
+	if g.MysteryValue == "" {
+		return errors.New("Mystery value is missing")
 	}
 	return nil
 }

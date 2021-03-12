@@ -39,7 +39,7 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	}
 
 	stmt, err := r.db.Prepare(fmt.Sprintf(`
-		Insert INTO geolocation (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
+		Insert INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
 		values %s`, strings.Join(values, ",")))
 	if err != nil {
 		return int64(len(geolocations)), err
@@ -61,17 +61,17 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 }
 
 func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
-	stmt, err := r.db.Prepare(`SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocation WHERE IpAddress = $1`)
+	stmt, err := r.db.Prepare(`SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocations_data WHERE IpAddress = $1`)
 	if err != nil {
 		return nil, err
 	}
-	var geoModel domain.Geolocation
+	var geolocation domain.Geolocation
 	row := stmt.QueryRow(ipAddress)
 
-	err = row.Scan( &geoModel.Id, &geoModel.IpAddress, &geoModel.CountryCode, &geoModel.Country, &geoModel.City, &geoModel.Latitude, geoModel.Longitude, geoModel.MysteryValue)
+	err = row.Scan( &geolocation.Id, &geolocation.IpAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
 	if err == sql.ErrNoRows{
 		return nil, err
 	}
 
-	return &geoModel, nil
+	return &geolocation, nil
 }

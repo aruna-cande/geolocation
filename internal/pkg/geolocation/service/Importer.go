@@ -72,21 +72,22 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 		fmt.Println(record)
 	}
 	locationChunks := getChunksOfGeolocationData(locations, 1000)
-	// i := 0; i < len(locationChunks); i++
+
+	var discardedDb int64
 	for _, chunk := range locationChunks {
 		rowsAffected, err := s.fr.AddGeolocation(chunk)
 		if err != nil {
 			fmt.Println("failed to add locations")
-			discarded = discarded + int64(len(chunk))
+			discardedDb = discardedDb + int64(len(chunk))
 		}
-		discarded = discarded + (int64(len(chunk)) - rowsAffected)
+		discardedDb = discardedDb + (int64(len(chunk)) - rowsAffected)
 	}
 	duration := time.Since(started)
-	accepted := int64(len(locations)) - discarded
+	accepted := int64(len(locations)) - discardedDb
 	statistics := Statistics{
 		TimeElapsed: duration,
 		Accepted: accepted,
-		Discarded:   discarded,
+		Discarded:   discarded + discardedDb,
 	}
 	return statistics, nil
 }

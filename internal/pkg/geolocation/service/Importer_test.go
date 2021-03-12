@@ -27,7 +27,7 @@ func getCsvData() (*http.Response, error){
 	return t, nil
 }
 
-func Test_ImportGeolocationData(t *testing.T) {
+func TestImporterService_ImportGeolocationData(t *testing.T) {
 	type test struct {
 		dumpFile string
 		valid int64
@@ -44,14 +44,13 @@ func Test_ImportGeolocationData(t *testing.T) {
 	repo := mock.NewMockRepository(ctrl)
 
 	for _, test := range tests{
-		//restCliet := mock.NewMockHTTPClient(ctrl)
-		//request, _ := http.NewRequest(http.MethodPost, "url", nil)
 		repo.EXPECT().AddGeolocation(gomock.Any()).Return(test.valid, nil)
 
 		_, filename, _, _ := runtime.Caller(0)
 		csvTestFile := path.Join(path.Dir(filename), test.dumpFile)
 		srv := NewImporterService(repo)
 		statistics, err := srv.ImportGeolocationData(csvTestFile)
+
 		assert.Nil(t, err)
 		assert.Equal(t, statistics.Accepted, test.valid)
 		assert.Equal(t, statistics.Discarded, test.invalid)
