@@ -1,9 +1,8 @@
 package service
 
-
 import (
-"Geolocation/internal/pkg/geolocation/adapters"
-"Geolocation/internal/pkg/geolocation/domain"
+	"Geolocation/pkg/geolocation/adapters"
+	"Geolocation/pkg/geolocation/domain"
 )
 
 type GeolocationDataService interface {

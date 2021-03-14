@@ -1,6 +1,5 @@
 package domain
 
-
 import (
 	"errors"
 	"net"
@@ -19,7 +18,7 @@ type Geolocation struct {
 }
 
 func NewGeolocation(ipAddress, countryCode string, country string, city string, latitude string, longitude string, mysteryValue string) *Geolocation {
-	floatLatitude, err := strconv.ParseFloat(latitude,64)
+	floatLatitude, err := strconv.ParseFloat(latitude, 64)
 	if err != nil {
 		return nil
 	}
@@ -39,22 +38,22 @@ func NewGeolocation(ipAddress, countryCode string, country string, city string, 
 		MysteryValue: mysteryValue,
 	}
 	err = geoData.Validate()
-	if err != nil{
+	if err != nil {
 		return nil
 	}
 
 	return geoData
 }
 
-func (g *Geolocation) Validate() error  {
+func (g *Geolocation) Validate() error {
 	if net.ParseIP(g.IpAddress) == nil || g.IpAddress == "" {
 		return errors.New("Invalid IP")
 	}
-	if  g.CountryCode  == "" || g.Country =="" || g.City==""  {
+	if g.CountryCode == "" || g.Country == "" || g.City == "" {
 		return errors.New("invalid location")
 	}
 
-	if g.Latitude >=90 || g.Latitude <= -90 || g.Longitude >=180 || g.Longitude <= -180{
+	if g.Latitude >= 90 || g.Latitude <= -90 || g.Longitude >= 180 || g.Longitude <= -180 {
 		return errors.New("Invalid geografical cordinates")
 	}
 
@@ -63,5 +62,3 @@ func (g *Geolocation) Validate() error  {
 	}
 	return nil
 }
-
-

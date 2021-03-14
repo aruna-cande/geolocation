@@ -1,8 +1,8 @@
 package service
 
 import (
-	"Geolocation/internal/pkg/geolocation/domain"
-	"Geolocation/internal/pkg/geolocation/service/mock"
+	"Geolocation/pkg/geolocation/domain"
+	"Geolocation/pkg/geolocation/service/mock"
 	"database/sql"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -11,9 +11,9 @@ import (
 
 func TestGeolocationDataService_GetGeolocationByIp(t *testing.T) {
 	type test struct {
-		ipAddress string
+		ipAddress   string
 		geolocation *domain.Geolocation
-		error error
+		error       error
 	}
 
 	geoData := domain.NewGeolocation("10.0.0.1", "SI", "Nepal", "DuBuquemouth", "-84.87503094689836", "7.206435933364332", "7823011346")

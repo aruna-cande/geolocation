@@ -3,19 +3,20 @@ package adapters
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 )
 
-type InitDb struct{
-	user string
+type InitDb struct {
+	user     string
 	password string
-	dbname string
+	dbname   string
 }
 
-func NewInitDb(user string, password string, dbname string) *InitDb{
+func NewInitDb(user string, password string, dbname string) *InitDb {
 	return &InitDb{
-		user: user,
+		user:     user,
 		password: password,
-		dbname: dbname,
+		dbname:   dbname,
 	}
 }
 
@@ -23,7 +24,7 @@ func getConnectionString(user string, password string, dbname string) string {
 	return fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
 }
 
-func (i InitDb)InitDatabase() (postgresDB *sql.DB) {
+func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 	postgresDB, err := sql.Open("postgres", getConnectionString(i.user, i.password, "postgres"))
 	defer postgresDB.Close()
 
@@ -37,7 +38,8 @@ func (i InitDb)InitDatabase() (postgresDB *sql.DB) {
 	err = stmt.QueryRow().Scan(&result)
 
 	if err == sql.ErrNoRows && result == "" {
-		_, err := postgresDB.Exec("CREATE DATABASE geolocations")
+		query := fmt.Sprintf("CREATE DATABASE %s", i.dbname)
+		_, err := postgresDB.Exec(query)
 		if err != nil {
 			panic(err)
 		}
@@ -45,16 +47,16 @@ func (i InitDb)InitDatabase() (postgresDB *sql.DB) {
 
 	connectionString := getConnectionString(i.user, i.password, i.dbname)
 	db, err := sql.Open("postgres", connectionString)
-
 	if err != nil {
 		panic(err)
 	}
-	i.createTableGeolocations(postgresDB)
+
+	i.createTableGeolocations(db)
 
 	return db
 }
 
-func (i InitDb)createTableGeolocations(db *sql.DB) {
+func (i InitDb) createTableGeolocations(db *sql.DB) {
 	_, er := db.Exec(`
 		CREATE TABLE IF NOT EXISTS geolocations_data (
 		id SERIAL PRIMARY KEY,

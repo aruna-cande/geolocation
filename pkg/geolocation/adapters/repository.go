@@ -1,9 +1,10 @@
 package adapters
 
 import (
-	"Geolocation/internal/pkg/geolocation/domain"
+	"Geolocation/pkg/geolocation/domain"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -27,8 +28,8 @@ func NewGeolocationPostgresRepository(
 func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) (int64, error) {
 	var values []string
 	var args []interface{}
-	for  _, geolocation := range geolocations {
-		values = append(values, "(?, ?, ?, ?, ?, ?, ?)")
+	for _, geolocation := range geolocations {
+		values = append(values, fmt.Sprintf("(?, ?, ?, ?, ?, ?, ?)"))
 		args = append(args, geolocation.IpAddress)
 		args = append(args, geolocation.CountryCode)
 		args = append(args, geolocation.Country)
@@ -38,13 +39,13 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 		args = append(args, geolocation.MysteryValue)
 	}
 
-	stmt, err := r.db.Prepare(fmt.Sprintf(`
-		Insert INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) 
-		values %s`, strings.Join(values, ",")))
+	query := fmt.Sprintf(`INSERT INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) Values %s`, strings.Join(values, ","))
+	query = replacePattern(query, "?")
+	stmt, err := r.db.Prepare(strings.TrimSuffix(query, ","))
 	if err != nil {
 		return int64(len(geolocations)), err
 	}
-	result, err := stmt.Exec(args)
+	result, err := stmt.Exec(args...)
 	if err != nil {
 		return 0, err
 	}
@@ -60,16 +61,20 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	return rowsAffected, nil
 }
 
-func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
-	stmt, err := r.db.Prepare(`SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocations_data WHERE IpAddress = $1`)
-	if err != nil {
-		return nil, err
+func replacePattern(old, searchPattern string) string {
+	tmpCount := strings.Count(old, searchPattern)
+	for m := 1; m <= tmpCount; m++ {
+		old = strings.Replace(old, searchPattern, "$"+strconv.Itoa(m), 1)
 	}
-	var geolocation domain.Geolocation
-	row := stmt.QueryRow(ipAddress)
+	return old
+}
 
-	err = row.Scan( &geolocation.Id, &geolocation.IpAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
-	if err == sql.ErrNoRows{
+func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
+	var geolocation domain.Geolocation
+	row := r.db.QueryRow("SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocations_data WHERE IpAddress = $1", ipAddress)
+
+	err := row.Scan(&geolocation.Id, &geolocation.IpAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+	if err == sql.ErrNoRows {
 		return nil, err
 	}
 

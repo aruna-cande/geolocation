@@ -1,13 +1,11 @@
 package service
 
 import (
-	"Geolocation/internal/pkg/geolocation/adapters"
-	"Geolocation/internal/pkg/geolocation/domain"
+	"Geolocation/pkg/geolocation/adapters"
+	"Geolocation/pkg/geolocation/domain"
 	"encoding/csv"
-	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -18,18 +16,11 @@ type ImporterService interface {
 
 type importerService struct {
 	fr adapters.Repository
+	log *log.Logger
 }
 
-func NewImporterService(repository adapters.Repository) ImporterService {
-	return &importerService{repository}
-}
-
-var (
-	Client adapters.HTTPClient
-)
-
-func init() {
-	Client = &http.Client{}
+func NewImporterService(repository adapters.Repository, logger *log.Logger) ImporterService {
+	return &importerService{repository, logger}
 }
 
 func (s *importerService) ImportGeolocationData(filepath string) (Statistics, error) {
@@ -37,10 +28,12 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 
 	data, err := os.Open(filepath)
 	if err != nil {
+		s.log.Println("File "+filepath+" not found")
 		return Statistics{}, err
 	}
 	r := csv.NewReader(data)
 
+	keys := make(map[string]bool)
 	var locations []*domain.Geolocation
 	var discarded int64
 	for {
@@ -52,9 +45,10 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 			log.Fatal(err)
 			return Statistics{}, err
 		}
-		if record[0] == "ip_address" {
+		if isImporterCsvHeader(record) {
 			continue
 		}
+
 		ipAddress := record[0]
 		countryCode := record[1]
 		country := record[2]
@@ -62,22 +56,27 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 		latitude := record[4]
 		longitude := record[5]
 		mysteryValue := record[6]
-		geoData := domain.NewGeolocation(ipAddress, countryCode, country, city, latitude, longitude, mysteryValue)
 
-		if geoData == nil {
+		if _, value := keys[ipAddress]; !value {
+			keys[ipAddress] = true
+			geoData := domain.NewGeolocation(ipAddress, countryCode, country, city, latitude, longitude, mysteryValue)
+
+			if geoData == nil {
+				discarded++
+				continue
+			}
+			locations = append(locations, geoData)
+		} else {
 			discarded++
-			continue
 		}
-		locations = append(locations, geoData)
-		fmt.Println(record)
 	}
-	locationChunks := getChunksOfGeolocationData(locations, 1000)
+	locationChunks := getChunksOfGeolocationData(locations, 500)
 
 	var discardedDb int64
 	for _, chunk := range locationChunks {
 		rowsAffected, err := s.fr.AddGeolocation(chunk)
 		if err != nil {
-			fmt.Println("failed to add locations")
+			s.log.Println("Failed with error: " + err.Error())
 			discardedDb = discardedDb + int64(len(chunk))
 		}
 		discardedDb = discardedDb + (int64(len(chunk)) - rowsAffected)
@@ -86,18 +85,20 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 	accepted := int64(len(locations)) - discardedDb
 	statistics := Statistics{
 		TimeElapsed: duration,
-		Accepted: accepted,
+		Accepted:    accepted,
 		Discarded:   discarded + discardedDb,
 	}
 	return statistics, nil
 }
 
-func DownloadCsvFile(url string) (*http.Response, error) {
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
+func isImporterCsvHeader(record []string) bool{
+	if record[0] == "ip_address" && record[1] == "country_code" &&
+		record[2] == "country" && record[3] == "city" &&
+		record[4] == "latitude" && record[5] == "longitude" &&
+		record[6] == "mystery_value"{
+		return true
 	}
-	return Client.Do(request)
+	return false
 }
 
 func getChunksOfGeolocationData(locations []*domain.Geolocation, chunkSize int) [][]*domain.Geolocation {

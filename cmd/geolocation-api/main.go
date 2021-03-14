@@ -1,17 +1,16 @@
 package main
 
 import (
-	"Geolocation/internal/app/geolocation-api/handler"
-	"Geolocation/internal/pkg/geolocation/service"
-	"Geolocation/internal/pkg/geolocation/adapters"
+	"Geolocation/cmd/geolocation-api/handler"
+	"Geolocation/pkg/geolocation/adapters"
+	"Geolocation/pkg/geolocation/service"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 	"github.com/urfave/negroni"
-	"log"
 	"net/http"
 	"os"
 	"time"
+	"log"
 )
 
 func main() {
@@ -19,21 +18,10 @@ func main() {
 	password := os.Getenv("POSTGRES_PASSWORD")
 	dbname := os.Getenv("POSTGRES_DB")
 
-	//initDatabase(user, password, dbname)
 	initDb := adapters.NewInitDb(user, password, dbname)
 	db := initDb.InitDatabase()
 
-	/*connectionString := getConnectionString(user, password, dbname)
-	db, err := sql.Open("postgres", connectionString)
-	defer db.Close()
-
-	createTableGeolocations(db)
-
-	if err != nil {
-		fmt.Sprintln("erro", err)
-	}*/
-
-	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
+	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	postgresRepository := adapters.NewGeolocationPostgresRepository(db)
 	geolocationService := service.NewGeolocationDataService(postgresRepository)
@@ -57,7 +45,7 @@ func main() {
 	}
 	err := srv.ListenAndServe()
 	if err != nil {
-		log.Fatal(err.Error())
+		logger.Fatal(err.Error())
 	}
 }
 
