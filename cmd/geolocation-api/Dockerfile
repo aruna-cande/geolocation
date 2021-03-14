@@ -8,3 +8,4 @@ COPY pkg .
 WORKDIR /app
 RUN ls -a
 RUN go  build -o app ./cmd/geolocation-api
+CMD ["/app"]
