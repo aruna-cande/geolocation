@@ -4,4 +4,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build .
+COPY pkg .
+WORKDIR /app
+RUN ls -a
+RUN go  build -o app ./cmd/geolocation-api
