@@ -6,24 +6,31 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strconv"
 )
 
 func main() {
-
+	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
 	dbname := os.Getenv("POSTGRES_DB")
+	host := os.Getenv("POSTGRES_HOST")
+	port, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"),10,64)
+	if err != nil{
+		logger.Fatal(err.Error())
+		return
+	}
 
-	initDb := adapters.NewInitDb(user, password, dbname)
+	initDb := adapters.NewInitDb(user, password, dbname, host, port)
 	db := initDb.InitDatabase()
+
 	defer db.Close()
 	srcPath := os.Args[1]
-	importGeolocationData(srcPath, db)
+	importGeolocationData(srcPath, db, logger)
 }
 
-func importGeolocationData(srcPath string, db *sql.DB){
-	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
-	logger.Println("starting importer service")
+func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger){
+	logger.Println("starting importer task")
 	repository := adapters.NewGeolocationPostgresRepository(db)
 	service := service.NewImporterService(repository, logger)
 	statistics, err := service.ImportGeolocationData(srcPath)
@@ -32,5 +39,5 @@ func importGeolocationData(srcPath string, db *sql.DB){
 		log.Println(err.Error())
 	}
 
-	log.Println("Import duration %s. %d rows accepted and %d rows discarded", statistics.TimeElapsed, statistics.Accepted, statistics.Discarded)
+	log.Printf("Import duration %s. %d rows accepted and %d rows discarded", statistics.TimeElapsed, statistics.Accepted, statistics.Discarded)
 }

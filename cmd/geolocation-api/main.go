@@ -9,19 +9,26 @@ import (
 	"github.com/urfave/negroni"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 	"log"
 )
 
 func main() {
+	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
+
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
 	dbname := os.Getenv("POSTGRES_DB")
+	host := os.Getenv("POSTGRES_HOST")
+	port, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"),10,64)
+	if err != nil{
+		logger.Fatal(err.Error())
+		return
+	}
 
-	initDb := adapters.NewInitDb(user, password, dbname)
+	initDb := adapters.NewInitDb(user, password, dbname, host, port)
 	db := initDb.InitDatabase()
-
-	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	postgresRepository := adapters.NewGeolocationPostgresRepository(db)
 	geolocationService := service.NewGeolocationDataService(postgresRepository)
@@ -43,7 +50,7 @@ func main() {
 		Handler:      context.ClearHandler(http.DefaultServeMux),
 		ErrorLog:     logger,
 	}
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		logger.Fatal(err.Error())
 	}

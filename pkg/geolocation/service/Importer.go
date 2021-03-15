@@ -78,8 +78,9 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 		if err != nil {
 			s.log.Println("Failed with error: " + err.Error())
 			discardedDb = discardedDb + int64(len(chunk))
+		}else{
+			discardedDb = discardedDb + (int64(len(chunk)) - rowsAffected)
 		}
-		discardedDb = discardedDb + (int64(len(chunk)) - rowsAffected)
 	}
 	duration := time.Since(started)
 	accepted := int64(len(locations)) - discardedDb

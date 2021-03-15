@@ -10,22 +10,26 @@ type InitDb struct {
 	user     string
 	password string
 	dbname   string
+	host string
+	port int64
 }
 
-func NewInitDb(user string, password string, dbname string) *InitDb {
+func NewInitDb(user string, password string, dbname string, host string, port int64) *InitDb {
 	return &InitDb{
 		user:     user,
 		password: password,
 		dbname:   dbname,
+		host: host,
+		port: port,
 	}
 }
 
-func getConnectionString(user string, password string, dbname string) string {
-	return fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
+func (i InitDb)getConnectionString(dbname string) string {
+	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", i.user, i.password, i.host, i.port, dbname)
 }
 
 func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
-	postgresDB, err := sql.Open("postgres", getConnectionString(i.user, i.password, "postgres"))
+	postgresDB, err := sql.Open("postgres", i.getConnectionString("postgres"))
 	defer postgresDB.Close()
 
 	query := fmt.Sprintf("SELECT datname FROM pg_database WHERE datname='%s'", i.dbname)
@@ -45,7 +49,7 @@ func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 		}
 	}
 
-	connectionString := getConnectionString(i.user, i.password, i.dbname)
+	connectionString := i.getConnectionString(i.dbname)
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		panic(err)
@@ -60,7 +64,7 @@ func (i InitDb) createTableGeolocations(db *sql.DB) {
 	_, er := db.Exec(`
 		CREATE TABLE IF NOT EXISTS geolocations_data (
 		id SERIAL PRIMARY KEY,
-		ipaddress TEXT NOT NULL,
+		ipaddress TEXT UNIQUE NOT NULL,
 		countrycode TEXT NOT NULL,
 		country TEXT NOT NULL,
 		city TEXT NOT NULL,

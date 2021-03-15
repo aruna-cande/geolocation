@@ -2,6 +2,7 @@ package service
 
 import (
 	"Geolocation/pkg/geolocation/service/mock"
+	"database/sql"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -16,12 +17,14 @@ func TestImporterService_ImportGeolocationData(t *testing.T) {
 		dumpFile  string
 		accepted  int64
 		discarded int64
+		err error
 	}
 	tests := []test{
-		{dumpFile: "/testResources/data_dump.csv", accepted: 5, discarded: 0},
-		{dumpFile: "/testResources/data_dump_duplicated_data.csv", accepted: 1, discarded: 4},
-		{dumpFile: "/testResources/data_dump_invalid_empty_country.csv", accepted: 4, discarded: 1},
-		{dumpFile: "/testResources/data_dump_invalid_ip.csv", accepted: 3, discarded: 2},
+		{dumpFile: "/testResources/data_dump.csv", accepted: 5, discarded: 0, err: nil},
+		{dumpFile: "/testResources/data_dump.csv", accepted: 0, discarded: 5, err: sql.ErrConnDone},
+		{dumpFile: "/testResources/data_dump_duplicated_data.csv", accepted: 1, discarded: 4, err: nil},
+		{dumpFile: "/testResources/data_dump_invalid_empty_country.csv", accepted: 4, discarded: 1, err: nil},
+		{dumpFile: "/testResources/data_dump_invalid_ip.csv", accepted: 3, discarded: 2, err: nil},
 	}
 
 	ctrl := gomock.NewController(t)
@@ -30,7 +33,7 @@ func TestImporterService_ImportGeolocationData(t *testing.T) {
 	logger := log.New(os.Stderr, "logger: ", log.Ldate)
 
 	for _, test := range tests {
-		repo.EXPECT().AddGeolocation(gomock.Any()).Return(test.accepted, nil)
+		repo.EXPECT().AddGeolocation(gomock.Any()).Return(test.accepted, test.err)
 
 		_, filename, _, _ := runtime.Caller(0)
 		csvTestFile := path.Join(path.Dir(filename), test.dumpFile)
