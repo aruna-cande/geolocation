@@ -29,25 +29,25 @@ spec:
           - containerPort: 8080
         env:
           - name: POSTGRES_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: geolocation-config
-                  key: Postgres_host
+            valueFrom:
+              configMapKeyRef:
+                name: geolocation-config
+                key: Postgres_host
           - name: POSTGRES_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: geolocation-config
-                  key: postgres_port
+            valueFrom:
+              configMapKeyRef:
+                name: geolocation-config
+                key: postgres_port
           - name: API_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: geolocation-config
-                  key: api_port
+            valueFrom:
+              configMapKeyRef:
+                name: geolocation-config
+                key: api_port
           - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: geolocation-secrets
-                  key: username
+            valueFrom:
+              secretKeyRef:
+                name: geolocation-secrets
+                key: username
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
