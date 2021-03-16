@@ -68,8 +68,8 @@ jobs:
         cd deployment/geolocation-api/
         ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE_GEOLOCATION_API:$GITHUB_SHA
         ./kustomize build . | kubectl apply -f -
-        kubectl rollout status deployment/$DEPLOYMENT_GEOLOCATION_API_NAME
-        kubectl get services -o wide
+        kubectl rollout status deployment/$DEPLOYMENT_GEOLOCATION_API_NAME --namespace geolocation
+        kubectl get services -o wide --namespace geolocation
 
   setup-build-publish-deploy-importer-task:
     name: Setup, Build, Publish, and Deploy
