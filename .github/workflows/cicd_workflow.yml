@@ -7,7 +7,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: test-gke-cluster    # TODO: update to cluster name
+  GKE_CLUSTER: gcp-playground-project-gke-cluster    # TODO: update to cluster name
   GKE_REGION: us-east1   # TODO: update to cluster zone
   DEPLOYMENT_GEOLOCATION_API_NAME: geolocation-api-deployment # TODO: update to deployment name
   IMAGE_GEOLOCATION_API: geolocation-api
