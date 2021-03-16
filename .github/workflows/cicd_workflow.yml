@@ -66,7 +66,7 @@ jobs:
     - name: Deploy
       run: |-
         ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE_GEOLOCATION_API:$GITHUB_SHA
-        ./kustomize build . | kubectl apply -f -
+        ./kustomize build deployment/geolocation-api/kustomization.yml | kubectl apply -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
 
@@ -116,4 +116,4 @@ jobs:
       - name: Deploy
         run: |-
           ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE_IMPORTER_TASK:$GITHUB_SHA
-          ./kustomize build . | kubectl apply -f -
+          ./kustomize build deployment/importer-task/kustomization.yml | kubectl apply -f -
