@@ -47,9 +47,9 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: geolocation-secrets
-                key: username
+                key: postgres_user
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: geolocation-secrets
-                key: password
+                key: postgres_password

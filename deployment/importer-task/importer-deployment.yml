@@ -2,6 +2,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: importer
+  namespace: geolocation
 spec:
   schedule: "*/30 * * * *"
   jobTemplate:
@@ -29,7 +30,7 @@ spec:
                   valueFrom:
                     configMapKeyRef:
                       name: geolocation-config
-                      key: Postgres_host
+                      key: postgres_host
                 - name: POSTGRES_PORT
                   valueFrom:
                     configMapKeyRef:
@@ -39,12 +40,12 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: mysecret
-                      key: username
+                      key: postgres_user
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: mysecret
-                      key: password
+                      key: postgres_password
           volumes:
             - name: datadump
               persistentVolumeClaim:

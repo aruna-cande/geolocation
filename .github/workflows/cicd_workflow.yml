@@ -7,11 +7,10 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: gcp-playground-project-gke-cluster    # TODO: update to cluster name
-  GKE_REGION: us-east1   # TODO: update to cluster zone
-  DEPLOYMENT_GEOLOCATION_API_NAME: geolocation-api-deployment # TODO: update to deployment name
+  GKE_CLUSTER: gcp-playground-project-gke-cluster
+  GKE_REGION: us-east1
+  DEPLOYMENT_GEOLOCATION_API_NAME: geolocation-api-deployment
   IMAGE_GEOLOCATION_API: geolocation-api
-  DEPLOYMENT_IMPORTER_NAME: importer-task-deployment # TODO: update to deployment name
   IMAGE_IMPORTER_TASK: importer-task
 
 jobs:
@@ -69,7 +68,7 @@ jobs:
         cd deployment/geolocation-api/
         ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE_GEOLOCATION_API:$GITHUB_SHA
         ./kustomize build . | kubectl apply -f -
-        kubectl rollout status deployment/$DEPLOYMENT_NAME
+        kubectl rollout status deployment/$DEPLOYMENT_GEOLOCATION_API_NAME
         kubectl get services -o wide
 
   setup-build-publish-deploy-importer-task:
