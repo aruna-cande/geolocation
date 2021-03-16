@@ -1,0 +1,51 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: importer
+spec:
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: importer-task
+              image: gcr.io/PROJECT_ID/IMAGE:TAG
+              command: ["data_dump.csv"]
+              volumeMounts:
+                - name: datadump
+                  mountPath: /tmp/data
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "500m"
+              ports:
+                - containerPort: 8080
+              env:
+                - name: POSTGRES_HOST
+                    valueFrom:
+                      configMapKeyRef:
+                        name: geolocation-config
+                        key: Postgres_host
+                - name: POSTGRES_PORT
+                    valueFrom:
+                      configMapKeyRef:
+                        name: geolocation-config
+                        key: postgres_port
+                - name: POSTGRES_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: mysecret
+                        key: username
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysecret
+                      key: password
+          volumes:
+            - name: datadump
+              persistentVolumeClaim:
+                claimName: importer-claim
