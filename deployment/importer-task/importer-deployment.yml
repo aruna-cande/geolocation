@@ -39,12 +39,12 @@ spec:
                 - name: POSTGRES_USER
                   valueFrom:
                     secretKeyRef:
-                      name: mysecret
+                      name: geolocation-secrets
                       key: postgres_user
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: mysecret
+                      name: geolocation-secrets
                       key: postgres_password
           volumes:
             - name: datadump
