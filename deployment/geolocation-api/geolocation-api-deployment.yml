@@ -32,7 +32,7 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: geolocation-config
-                key: Postgres_host
+                key: postgres_host
           - name: POSTGRES_PORT
             valueFrom:
               configMapKeyRef:
