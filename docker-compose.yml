@@ -20,7 +20,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=test
       - POSTGRES_DB=geolocations
-      - POSTGRES_HOST=172.20.0.2
+      - POSTGRES_HOST=localhost
       - POSTGRES_PORT=5432
       - API_PORT=8080
     ports:
@@ -39,7 +39,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=test
       - POSTGRES_DB=geolocations
-      - POSTGRES_HOST=172.20.0.2
+      - POSTGRES_HOST=localhost #172.20.0.2
       - POSTGRES_PORT=5432
     depends_on:
       - db

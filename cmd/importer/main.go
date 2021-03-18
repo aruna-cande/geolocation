@@ -6,20 +6,16 @@ import (
 	"database/sql"
 	"log"
 	"os"
-	"strconv"
 )
 
 func main() {
 	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbname := os.Getenv("POSTGRES_DB")
-	host := os.Getenv("POSTGRES_HOST")
-	port, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"),10,64)
-	if err != nil{
-		logger.Fatal(err.Error())
-		return
-	}
+	config := NewConfig()
+	user := config.PostgresUser
+	password := config.PostgresPassword
+	dbname := config.PostgresDb
+	host := config.PostgresHost
+	port := config.PostgresPort
 
 	initDb := adapters.NewInitDb(user, password, dbname, host, port)
 	db := initDb.InitDatabase()
