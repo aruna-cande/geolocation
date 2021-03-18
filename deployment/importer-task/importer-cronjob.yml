@@ -45,10 +45,10 @@ spec:
                       name: geolocation-config
                       key: postgres_port
                 - name: POSTGRES_DB
-                    valueFrom:
-                      configMapKeyRef:
-                        name: geolocation-config
-                        key: postgres_db
+                  valueFrom:
+                    configMapKeyRef:
+                      name: geolocation-config
+                      key: postgres_db
                 - name: POSTGRES_USER
                   valueFrom:
                     secretKeyRef:
