@@ -23,13 +23,13 @@ spec:
           capabilities:
             add:
               - SYS_ADMIN
-          lifecycle:
-            postStart:
-              exec:
-                command: [ "gcsfuse", "-o", "nonempty", "geolocation-importer-data", "/tmp/data" ]
-            preStop:
-              exec:
-                command: [ "fusermount", "-u", "/tmp/data" ]
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "gcsfuse", "-o", "nonempty", "geolocation-importer-data", "/tmp/data" ]
+          preStop:
+            exec:
+              command: [ "fusermount", "-u", "/tmp/data" ]
 #        volumeMounts:
 #          - name: datadump
 #            mountPath: /tmp/data
