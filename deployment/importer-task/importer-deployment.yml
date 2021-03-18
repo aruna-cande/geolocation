@@ -12,7 +12,6 @@ spec:
           containers:
             - name: importer-task
               image: gcr.io/PROJECT_ID/IMAGE:TAG
-              command: ["/tmp/data/data_dump.csv"]
               securityContext:
                 privileged: true
                 capabilities:
@@ -55,6 +54,7 @@ spec:
                     secretKeyRef:
                       name: geolocation-secrets
                       key: postgres_password
+              command: [ "/tmp/data/data_dump.csv" ]
           restartPolicy: OnFailure
 #          volumes:
 #            - name: datadump
