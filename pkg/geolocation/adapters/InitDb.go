@@ -42,13 +42,11 @@ func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 	var result string
 	err = stmt.QueryRow().Scan(&result)
 
-	log.Println("##### table "+result+" exists")
-
 	if err == sql.ErrNoRows && result == "" {
 		query := fmt.Sprintf("CREATE DATABASE %s", i.dbname)
 		_, err := postgresDB.Exec(query)
 		if err != nil {
-			log.Println("unable to create database "+i.dbname+" exists")
+			log.Println("unable to create database "+i.dbname)
 			panic(err)
 		}
 	}

@@ -38,6 +38,11 @@ spec:
               configMapKeyRef:
                 name: geolocation-config
                 key: postgres_port
+          - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: geolocation-config
+                  key: postgres_db
           - name: API_PORT
             valueFrom:
               configMapKeyRef:
