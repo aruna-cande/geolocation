@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: importer-task
-              image: gcr.io/PROJECT_ID/IMAGE:TAG
+              image: gcr.io/gcp-playground-project/importer-task@sha256:f5bd1b23f6fe702e9273433826c43881085fd463cdbd465df564ad4999d67771
               securityContext:
                 privileged: true
                 capabilities:
@@ -59,7 +59,7 @@ spec:
                     secretKeyRef:
                       name: geolocation-secrets
                       key: postgres_password
-              command: ["/bin/sh", "-ec", "sleep 15", "&&", "./app/importer", "/tmp/data/data_dump.csv" ]
+              command: ["./app/importer", "/tmp/data/data_dump.csv" ]
           restartPolicy: OnFailure
 #          volumes:
 #            - name: datadump

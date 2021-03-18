@@ -6,9 +6,11 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
+	time.Sleep(15 * time.Second)
 	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
 	config := NewConfig()
 	user := config.PostgresUser
