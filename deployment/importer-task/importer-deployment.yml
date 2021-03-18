@@ -55,8 +55,8 @@ spec:
                     secretKeyRef:
                       name: geolocation-secrets
                       key: postgres_password
+          restartPolicy: OnFailure
 #          volumes:
 #            - name: datadump
 #              persistentVolumeClaim:
 #                claimName: importer-claim
-#          restartPolicy: OnFailure
