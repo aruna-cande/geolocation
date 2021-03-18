@@ -54,7 +54,7 @@ spec:
                     secretKeyRef:
                       name: geolocation-secrets
                       key: postgres_password
-              command: [ "/tmp/data/data_dump.csv" ]
+              command: [ "./app/importer", "/tmp/data/data_dump.csv" ]
           restartPolicy: OnFailure
 #          volumes:
 #            - name: datadump
