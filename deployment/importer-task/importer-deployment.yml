@@ -12,10 +12,19 @@ spec:
           containers:
             - name: importer-task
               image: gcr.io/PROJECT_ID/IMAGE:TAG
-              command: ["data_dump.csv"]
-              volumeMounts:
-                - name: datadump
-                  mountPath: /tmp/data
+              command: ["/tmp/data/data_dump.csv"]
+              securityContext:
+                privileged: true
+                capabilities:
+                  add:
+                    - SYS_ADMIN
+              lifecycle:
+                postStart:
+                  exec:
+                    command: [ "gcsfuse", "-o", "nonempty", "geolocation-importer-data", "/tmp/data" ]
+                preStop:
+                  exec:
+                    command: [ "fusermount", "-u", "/tmp/data" ]
               resources:
                 requests:
                   memory: "64Mi"
@@ -46,8 +55,8 @@ spec:
                     secretKeyRef:
                       name: geolocation-secrets
                       key: postgres_password
-          volumes:
-            - name: datadump
-              persistentVolumeClaim:
-                claimName: importer-claim
-          restartPolicy: OnFailure
+#          volumes:
+#            - name: datadump
+#              persistentVolumeClaim:
+#                claimName: importer-claim
+#          restartPolicy: OnFailure

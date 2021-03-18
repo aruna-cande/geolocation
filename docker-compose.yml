@@ -34,7 +34,7 @@ services:
   importer-task:
     build:
       context: .
-      dockerfile: cmd/importer/Dockerfile
+      dockerfile: cmd/importer/Dockerfile-local
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=test

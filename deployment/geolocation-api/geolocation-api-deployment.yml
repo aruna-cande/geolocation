@@ -18,6 +18,9 @@ spec:
       containers:
       - name: geolocation-api
         image: gcr.io/PROJECT_ID/IMAGE:TAG
+        volumeMounts:
+          - name: datadump
+            mountPath: /tmp/data
         resources:
           requests:
             memory: "64Mi"
@@ -53,3 +56,7 @@ spec:
               secretKeyRef:
                 name: geolocation-secrets
                 key: postgres_password
+      volumes:
+        - name: datadump
+          persistentVolumeClaim:
+            claimName: importer-claim
