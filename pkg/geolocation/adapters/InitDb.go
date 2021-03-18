@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"log"
 )
 
 type InitDb struct {
@@ -25,7 +26,7 @@ func NewInitDb(user string, password string, dbname string, host string, port in
 }
 
 func (i InitDb)getConnectionString(dbname string) string {
-	return fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", i.user, i.password, i.host, i.port, dbname)
+	return fmt.Sprintf("user=%s password=%s host=%s port=%d database=%s sslmode=disable", i.user, i.password, i.host, i.port, dbname)
 }
 
 func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
@@ -41,10 +42,13 @@ func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 	var result string
 	err = stmt.QueryRow().Scan(&result)
 
+	log.Println("##### table "+result+" exists")
+
 	if err == sql.ErrNoRows && result == "" {
 		query := fmt.Sprintf("CREATE DATABASE %s", i.dbname)
 		_, err := postgresDB.Exec(query)
 		if err != nil {
+			log.Println("unable to create database "+i.dbname+" exists")
 			panic(err)
 		}
 	}
@@ -61,7 +65,7 @@ func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 }
 
 func (i InitDb) createTableGeolocations(db *sql.DB) {
-	_, er := db.Exec(`
+	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS geolocations_data (
 		id SERIAL PRIMARY KEY,
 		ipaddress TEXT UNIQUE NOT NULL,
@@ -73,7 +77,8 @@ func (i InitDb) createTableGeolocations(db *sql.DB) {
 		mysteryvalue TEXT NOT NULL
 	)`)
 
-	if er != nil {
-		panic(er)
+	if err != nil {
+		log.Println("unable to create table geolocations_data")
+		panic(err)
 	}
 }
