@@ -20,10 +20,10 @@ spec:
               lifecycle:
                 postStart:
                   exec:
-                    command: [ "gcsfuse", "-o", "nonempty", "geolocation-importer-data", "/tmp" ]
+                    command: [ "gcsfuse", "-o", "nonempty", "geolocation-importer-data", "/tmp/data" ]
                 preStop:
                   exec:
-                    command: [ "fusermount", "-u", "/tmp" ]
+                    command: [ "fusermount", "-u", "/tmp/data" ]
               resources:
                 requests:
                   memory: "64Mi"
@@ -54,7 +54,7 @@ spec:
                     secretKeyRef:
                       name: geolocation-secrets
                       key: postgres_password
-              command: [ "/tmp/data_dump.csv" ]
+              command: [ "/tmp/data/data_dump.csv" ]
           restartPolicy: OnFailure
 #          volumes:
 #            - name: datadump
