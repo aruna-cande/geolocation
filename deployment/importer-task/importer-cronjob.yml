@@ -26,11 +26,8 @@ spec:
                     command: [ "fusermount", "-u", "/tmp/data" ]
               resources:
                 requests:
-                  memory: "300m"
-                  cpu: "100m"
-                limits:
-                  memory: "500Mi"
-                  cpu: "500m"
+                  memory: "700m"
+                  cpu: "300m"
               ports:
                 - containerPort: 8080
               env:
