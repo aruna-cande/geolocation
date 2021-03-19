@@ -25,7 +25,7 @@ func NewImporterService(repository adapters.Repository, logger *log.Logger) Impo
 
 func (s *importerService) ImportGeolocationData(filepath string) (Statistics, error) {
 	started := time.Now()
-
+	s.log.Println("inside ImportGeolocationData")
 	data, err := os.Open(filepath)
 	if err != nil {
 		s.log.Println("File "+filepath+" not found")
@@ -42,7 +42,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			s.log.Fatal(err)
 			return Statistics{}, err
 		}
 		if isImporterCsvHeader(record) {

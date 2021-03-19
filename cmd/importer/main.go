@@ -30,7 +30,9 @@ func main() {
 func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger){
 	logger.Println("starting importer task")
 	repository := adapters.NewGeolocationPostgresRepository(db)
+	logger.Println(repository)
 	service := service.NewImporterService(repository, logger)
+	logger.Println(service)
 	statistics, err := service.ImportGeolocationData(srcPath)
 
 	if err != nil {
