@@ -66,6 +66,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 				continue
 			}
 			locations = append(locations, geoData)
+			s.log.Print(record)
 		} else {
 			discarded++
 		}

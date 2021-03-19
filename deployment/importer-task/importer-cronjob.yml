@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: importer-task
-              image: gcr.io/gcp-playground-project/importer-task@sha256:f5bd1b23f6fe702e9273433826c43881085fd463cdbd465df564ad4999d67771
+              image: gcr.io/gcp-playground-project/importer-task@sha256:210e297abca4c6d97eb8470a2bf13974bff92cfaf63bfd9c75f5c9d1558663a5
               securityContext:
                 privileged: true
                 capabilities:
@@ -20,7 +20,7 @@ spec:
               lifecycle:
                 postStart:
                   exec:
-                    command: [ "gcsfuse", "-o", "nonempty", "geolocation-importer-data", "/tmp/data" ]
+                    command: [ "gcsfuse", "--implicit-dirs", "geolocation-importer-data", "/tmp/data" ]
                 preStop:
                   exec:
                     command: [ "fusermount", "-u", "/tmp/data" ]
