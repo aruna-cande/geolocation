@@ -20,7 +20,7 @@ func TestImporterService_ImportGeolocationData(t *testing.T) {
 		err       error
 	}
 	tests := []test{
-		{dumpFile: "/testResources/data_dump.csv", accepted: 5, discarded: 0, err: nil},
+		//{dumpFile: "/testResources/data_dump.csv", accepted: 5, discarded: 0, err: nil},
 		{dumpFile: "/testResources/data_dump.csv", accepted: 0, discarded: 5, err: sql.ErrConnDone},
 		{dumpFile: "/testResources/data_dump_duplicated_data.csv", accepted: 1, discarded: 4, err: nil},
 		{dumpFile: "/testResources/data_dump_invalid_empty_country.csv", accepted: 4, discarded: 1, err: nil},

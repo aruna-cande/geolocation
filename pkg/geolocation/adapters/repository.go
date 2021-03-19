@@ -55,6 +55,19 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
+		query = fmt.Sprintf("INSERT INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) Values ($1, $2, $3, $4, $5, $6, $7)")
+		for _, geolocation := range geolocations {
+			stmt, err := r.db.Prepare(query)
+			if err != nil {
+				continue
+			}
+
+			_, err = stmt.Exec(geolocation.Id, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+			if err != nil {
+				continue
+			}
+			rowsAffected++
+		}
 		return 0, err
 	}
 
