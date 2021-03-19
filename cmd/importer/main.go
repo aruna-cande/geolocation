@@ -6,11 +6,10 @@ import (
 	"database/sql"
 	"log"
 	"os"
-	"time"
 )
 
 func main() {
-	time.Sleep(15 * time.Second)
+	//time.Sleep(15 * time.Second)
 	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
 	config := NewConfig()
 	user := config.PostgresUser
@@ -27,7 +26,7 @@ func main() {
 	importGeolocationData(srcPath, db, logger)
 }
 
-func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger){
+func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger) {
 	logger.Println("starting importer task")
 	repository := adapters.NewGeolocationPostgresRepository(db)
 	logger.Println(repository)

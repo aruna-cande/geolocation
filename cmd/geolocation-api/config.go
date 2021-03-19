@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 )
+
 type Config struct {
 	PostgresUser     string
 	PostgresPassword string
@@ -13,13 +14,13 @@ type Config struct {
 	ApiPort          int64
 }
 
-func NewConfig() Config{
-	port, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"),10,64)
-	if err != nil{
+func NewConfig() Config {
+	port, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"), 10, 64)
+	if err != nil {
 		return Config{}
 	}
-	apiPort, err := strconv.ParseInt(os.Getenv("API_PORT"),10,64)
-	if err != nil{
+	apiPort, err := strconv.ParseInt(os.Getenv("API_PORT"), 10, 64)
+	if err != nil {
 		return Config{}
 	}
 	return Config{

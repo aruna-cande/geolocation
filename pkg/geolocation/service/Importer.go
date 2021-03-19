@@ -15,7 +15,7 @@ type ImporterService interface {
 }
 
 type importerService struct {
-	fr adapters.Repository
+	fr  adapters.Repository
 	log *log.Logger
 }
 
@@ -27,7 +27,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 	started := time.Now()
 	data, err := os.Open(filepath)
 	if err != nil {
-		s.log.Println("File "+filepath+" not found")
+		s.log.Println("File " + filepath + " not found")
 		return Statistics{}, err
 	}
 	r := csv.NewReader(data)
@@ -78,7 +78,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 		if err != nil {
 			s.log.Println("Failed with error: " + err.Error())
 			discardedDb = discardedDb + int64(len(chunk))
-		}else{
+		} else {
 			discardedDb = discardedDb + (int64(len(chunk)) - rowsAffected)
 		}
 	}
@@ -92,11 +92,11 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 	return statistics, nil
 }
 
-func isImporterCsvHeader(record []string) bool{
+func isImporterCsvHeader(record []string) bool {
 	if record[0] == "ip_address" && record[1] == "country_code" &&
 		record[2] == "country" && record[3] == "city" &&
 		record[4] == "latitude" && record[5] == "longitude" &&
-		record[6] == "mystery_value"{
+		record[6] == "mystery_value" {
 		return true
 	}
 	return false

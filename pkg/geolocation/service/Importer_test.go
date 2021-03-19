@@ -17,7 +17,7 @@ func TestImporterService_ImportGeolocationData(t *testing.T) {
 		dumpFile  string
 		accepted  int64
 		discarded int64
-		err error
+		err       error
 	}
 	tests := []test{
 		{dumpFile: "/testResources/data_dump.csv", accepted: 5, discarded: 0, err: nil},
