@@ -11,6 +11,3 @@ RUN mkdir importer
 COPY . /importer
 WORKDIR /importer/cmd/importer
 RUN go build -o ./app/importer .
-
-#ENTRYPOINT ["./app/importer"]
-#CMD ["/tmp/data/data_dump.csv"]
