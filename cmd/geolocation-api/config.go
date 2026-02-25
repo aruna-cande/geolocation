@@ -11,7 +11,7 @@ type Config struct {
 	PostgresDb       string
 	PostgresHost     string
 	PostgresPort     int64
-	ApiPort          int64
+	APIPort          int64
 }
 
 func NewConfig() Config {
@@ -29,6 +29,6 @@ func NewConfig() Config {
 		PostgresDb:       os.Getenv("POSTGRES_DB"),
 		PostgresHost:     os.Getenv("POSTGRES_HOST"),
 		PostgresPort:     port,
-		ApiPort:          apiPort,
+		APIPort:          apiPort,
 	}
 }

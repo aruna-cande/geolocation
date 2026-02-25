@@ -1,4 +1,4 @@
-module Geolocation
+module geolocation
 
 go 1.16
 

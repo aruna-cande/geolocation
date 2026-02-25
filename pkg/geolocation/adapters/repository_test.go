@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"Geolocation/pkg/geolocation/domain"
+	"geolocation/pkg/geolocation/domain"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"

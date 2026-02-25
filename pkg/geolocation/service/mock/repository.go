@@ -5,7 +5,7 @@
 package mock
 
 import (
-	domain "Geolocation/pkg/geolocation/domain"
+	domain "geolocation/pkg/geolocation/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

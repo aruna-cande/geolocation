@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Geolocation/pkg/geolocation/adapters"
-	"Geolocation/pkg/geolocation/service"
+	"geolocation/pkg/geolocation/adapters"
+	"geolocation/pkg/geolocation/service"
 	"database/sql"
 	"log"
 	"os"

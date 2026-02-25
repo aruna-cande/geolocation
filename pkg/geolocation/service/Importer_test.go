@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Geolocation/pkg/geolocation/service/mock"
+	"geolocation/pkg/geolocation/service/mock"
 	"database/sql"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
