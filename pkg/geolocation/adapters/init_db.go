@@ -3,8 +3,9 @@ package adapters
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 type InitDb struct {
@@ -31,6 +32,9 @@ func (i InitDb) getConnectionString(dbname string) string {
 
 func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 	postgresDB, err := sql.Open("postgres", i.getConnectionString("postgres"))
+	if err != nil {
+		panic(err)
+	}
 	defer postgresDB.Close()
 
 	query := fmt.Sprintf("SELECT datname FROM pg_database WHERE datname='%s'", i.dbname)

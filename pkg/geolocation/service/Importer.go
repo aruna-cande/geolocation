@@ -1,8 +1,8 @@
 package service
 
 import (
-	"Geolocation/pkg/geolocation/adapters"
-	"Geolocation/pkg/geolocation/domain"
+	"geolocation/pkg/geolocation/adapters"
+	"geolocation/pkg/geolocation/domain"
 	"encoding/csv"
 	"io"
 	"log"

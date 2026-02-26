@@ -1,9 +1,9 @@
 package adapters
 
 import (
-	"Geolocation/pkg/geolocation/domain"
 	"database/sql"
 	"fmt"
+	"geolocation/pkg/geolocation/domain"
 	"strconv"
 	"strings"
 )
@@ -29,7 +29,7 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	var values []string
 	var args []interface{}
 	for _, geolocation := range geolocations {
-		values = append(values, fmt.Sprintf("(?, ?, ?, ?, ?, ?, ?)"))
+		values = append(values, "(?, ?, ?, ?, ?, ?, ?)")
 		args = append(args, geolocation.IpAddress)
 		args = append(args, geolocation.CountryCode)
 		args = append(args, geolocation.Country)
@@ -39,7 +39,7 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 		args = append(args, geolocation.MysteryValue)
 	}
 
-	query := fmt.Sprintf(`INSERT INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) Values %s`, strings.Join(values, ","))
+	query := fmt.Sprintf(`INSERT INTO geolocations_data (ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue) Values %s`, strings.Join(values, ","))
 	query = replacePattern(query, "?")
 	stmt, err := r.db.Prepare(strings.TrimSuffix(query, ","))
 	if err != nil {
@@ -55,7 +55,7 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		query = fmt.Sprintf("INSERT INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) Values ($1, $2, $3, $4, $5, $6, $7)")
+		query = "INSERT INTO geolocations_data (ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue) Values ($1, $2, $3, $4, $5, $6, $7)"
 		for _, geolocation := range geolocations {
 			stmt, err := r.db.Prepare(query)
 			if err != nil {
@@ -84,9 +84,9 @@ func replacePattern(old, searchPattern string) string {
 
 func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
 	var geolocation domain.Geolocation
-	row := r.db.QueryRow("SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocations_data WHERE IpAddress = $1", ipAddress)
+	row := r.db.QueryRow("SELECT id, ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue FROM geolocations_data WHERE ipaddress = $1", ipAddress)
 
-	err := row.Scan(&geolocation.Id, &geolocation.IpAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+	err := row.Scan(&geolocation.Id, &geolocation.IpAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, &geolocation.Longitude, &geolocation.MysteryValue)
 	if err == sql.ErrNoRows {
 		return nil, err
 	}

@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"Geolocation/pkg/geolocation/domain"
-	"Geolocation/pkg/geolocation/service/mock"
+	"geolocation/pkg/geolocation/domain"
+	"geolocation/pkg/geolocation/service/mock"
 	"encoding/json"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"

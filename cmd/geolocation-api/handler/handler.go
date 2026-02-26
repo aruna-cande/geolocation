@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"Geolocation/pkg/geolocation/service"
 	"encoding/json"
-	"fmt"
+	"geolocation/pkg/geolocation/service"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
-	"net/http"
 )
 
 func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service service.GeolocationDataService) {
@@ -20,7 +20,6 @@ func GetGeolocationByIp(service service.GeolocationDataService) http.Handler {
 		ipAddress := r.URL.Query().Get("ipaddress")
 		data, err := service.GetGeolocationByIp(ipAddress)
 
-		fmt.Sprintln("data value: ", data)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -29,7 +28,7 @@ func GetGeolocationByIp(service service.GeolocationDataService) http.Handler {
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(err.Error()))
+			w.Write([]byte("geolocation not found"))
 			return
 		}
 
@@ -41,7 +40,6 @@ func GetGeolocationByIp(service service.GeolocationDataService) http.Handler {
 			Latitude:    data.Latitude,
 			Longitude:   data.Longitude,
 		}
-		fmt.Println(geoData)
 		if err := json.NewEncoder(w).Encode(geoData); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))

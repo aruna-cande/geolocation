@@ -5,7 +5,7 @@
 package mock
 
 import (
-	domain "Geolocation/pkg/geolocation/domain"
+	domain "geolocation/pkg/geolocation/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,16 +35,16 @@ func (m *MockGeolocationDataService) EXPECT() *MockGeolocationDataServiceMockRec
 }
 
 // GetGeolocationByIp mocks base method.
-func (m *MockGeolocationDataService) GetGeolocationByIp(ipAdrress string) (*domain.Geolocation, error) {
+func (m *MockGeolocationDataService) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetGeolocationByIp", ipAdrress)
+	ret := m.ctrl.Call(m, "GetGeolocationByIp", ipAddress)
 	ret0, _ := ret[0].(*domain.Geolocation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetGeolocationByIp indicates an expected call of GetGeolocationByIp.
-func (mr *MockGeolocationDataServiceMockRecorder) GetGeolocationByIp(ipAdrress interface{}) *gomock.Call {
+func (mr *MockGeolocationDataServiceMockRecorder) GetGeolocationByIp(ipAddress interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeolocationByIp", reflect.TypeOf((*MockGeolocationDataService)(nil).GetGeolocationByIp), ipAdrress)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeolocationByIp", reflect.TypeOf((*MockGeolocationDataService)(nil).GetGeolocationByIp), ipAddress)
 }

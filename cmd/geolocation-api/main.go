@@ -1,17 +1,18 @@
 package main
 
 import (
-	"Geolocation/cmd/geolocation-api/handler"
-	"Geolocation/pkg/geolocation/adapters"
-	"Geolocation/pkg/geolocation/service"
 	"fmt"
-	"github.com/gorilla/context"
-	"github.com/gorilla/mux"
-	"github.com/urfave/negroni"
+	"geolocation/cmd/geolocation-api/handler"
+	"geolocation/pkg/geolocation/adapters"
+	"geolocation/pkg/geolocation/service"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
+	"github.com/urfave/negroni"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	dbname := config.PostgresDb
 	host := config.PostgresHost
 	port := config.PostgresPort
-	apiPort := config.ApiPort
+	apiPort := config.APIPort
 
 	initDb := adapters.NewInitDb(user, password, dbname, host, port)
 	db := initDb.InitDatabase()

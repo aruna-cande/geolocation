@@ -1,12 +1,12 @@
 package service
 
 import (
-	"Geolocation/pkg/geolocation/adapters"
-	"Geolocation/pkg/geolocation/domain"
+	"geolocation/pkg/geolocation/adapters"
+	"geolocation/pkg/geolocation/domain"
 )
 
 type GeolocationDataService interface {
-	GetGeolocationByIp(ipAdrress string) (*domain.Geolocation, error)
+	GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error)
 }
 
 type geolocationDataService struct {
