@@ -88,7 +88,10 @@ func (r *postgresRepository) GetGeolocationByIP(ipAddress string) (*domain.Geolo
 	row := r.db.QueryRow("SELECT id, ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue FROM geolocations_data WHERE ipaddress = $1", ipAddress)
 
 	err := row.Scan(&geolocation.ID, &geolocation.IPAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, &geolocation.Longitude, &geolocation.MysteryValue)
-	if err == sql.ErrNoRows {
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 

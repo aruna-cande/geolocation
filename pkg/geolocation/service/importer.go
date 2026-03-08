@@ -33,6 +33,8 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 		s.log.Println("File " + filepath + " not found")
 		return Statistics{}, err
 	}
+	defer data.Close()
+
 	r := csv.NewReader(data)
 
 	keys := make(map[string]bool)
@@ -44,7 +46,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 			break
 		}
 		if err != nil {
-			s.log.Fatal(err)
+			s.log.Printf("error reading CSV record: %v", err)
 			return Statistics{}, err
 		}
 		if isImporterCsvHeader(record) {

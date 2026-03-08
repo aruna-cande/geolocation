@@ -13,17 +13,19 @@ import (
 func main() {
 	time.Sleep(5 * time.Second)
 	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
-	config := NewConfig()
-	user := config.PostgresUser
-	password := config.PostgresPassword
-	dbname := config.PostgresDb
-	host := config.PostgresHost
-	port := config.PostgresPort
 
-	dbInit := adapters.NewDBInitializer(user, password, dbname, host, port)
-	db := dbInit.InitDatabase()
+	config, err := NewConfig()
+	if err != nil {
+		logger.Fatalf("failed to load config: %v", err)
+	}
 
+	dbInit := adapters.NewDBInitializer(config.PostgresUser, config.PostgresPassword, config.PostgresDb, config.PostgresHost, config.PostgresPort)
+	db, err := dbInit.InitDatabase()
+	if err != nil {
+		logger.Fatalf("failed to initialize database: %v", err)
+	}
 	defer db.Close()
+
 	srcPath := os.Args[1]
 	importGeolocationData(srcPath, db, logger)
 }
@@ -35,8 +37,8 @@ func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger) {
 	statistics, err := srv.ImportGeolocationData(srcPath)
 
 	if err != nil {
-		log.Println(err.Error())
+		logger.Printf("import failed: %v", err)
 	}
 
-	log.Printf("Import duration %s. %d rows accepted and %d rows discarded", statistics.TimeElapsed, statistics.Accepted, statistics.Discarded)
+	logger.Printf("Import duration %s. %d rows accepted and %d rows discarded", statistics.TimeElapsed, statistics.Accepted, statistics.Discarded)
 }

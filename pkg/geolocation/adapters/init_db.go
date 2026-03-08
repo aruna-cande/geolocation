@@ -3,7 +3,6 @@ package adapters
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -34,19 +33,19 @@ func (i DBInitializer) getConnectionString(dbname string) string {
 
 // InitDatabase creates the database if it doesn't exist, ensures the schema is
 // in place, and returns an open *sql.DB connection.
-func (i DBInitializer) InitDatabase() (postgresDB *sql.DB) {
+func (i DBInitializer) InitDatabase() (*sql.DB, error) {
 	postgresDB, err := sql.Open("postgres", i.getConnectionString("postgres"))
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("connecting to postgres: %w", err)
 	}
 	defer postgresDB.Close()
 
 	query := fmt.Sprintf("SELECT datname FROM pg_database WHERE datname='%s'", i.dbname)
 	stmt, err := postgresDB.Prepare(query)
-
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("preparing database check query: %w", err)
 	}
+
 	var result string
 	err = stmt.QueryRow().Scan(&result)
 
@@ -54,23 +53,25 @@ func (i DBInitializer) InitDatabase() (postgresDB *sql.DB) {
 		query := fmt.Sprintf("CREATE DATABASE %s", i.dbname)
 		_, err := postgresDB.Exec(query)
 		if err != nil {
-			log.Println("unable to create database " + i.dbname)
-			panic(err)
+			return nil, fmt.Errorf("creating database %s: %w", i.dbname, err)
 		}
 	}
 
 	connectionString := i.getConnectionString(i.dbname)
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("connecting to database %s: %w", i.dbname, err)
 	}
 
-	i.createTableGeolocations(db)
+	if err := i.createTableGeolocations(db); err != nil {
+		db.Close()
+		return nil, err
+	}
 
-	return db
+	return db, nil
 }
 
-func (i DBInitializer) createTableGeolocations(db *sql.DB) {
+func (i DBInitializer) createTableGeolocations(db *sql.DB) error {
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS geolocations_data (
 		id SERIAL PRIMARY KEY,
@@ -84,7 +85,7 @@ func (i DBInitializer) createTableGeolocations(db *sql.DB) {
 	)`)
 
 	if err != nil {
-		log.Println("unable to create table geolocations_data")
-		panic(err)
+		return fmt.Errorf("creating geolocations_data table: %w", err)
 	}
+	return nil
 }
