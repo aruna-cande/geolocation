@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"os"
@@ -8,8 +9,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 
 	"github.com/aruna-cande/geolocation/pkg/geolocation/service/mock"
 )
@@ -35,12 +36,12 @@ func TestImporterService_ImportGeolocationData(t *testing.T) {
 	logger := log.New(os.Stderr, "logger: ", log.Ldate)
 
 	for _, test := range tests {
-		repo.EXPECT().AddGeolocation(gomock.Any()).Return(test.accepted, test.err)
+		repo.EXPECT().AddGeolocation(gomock.Any(), gomock.Any()).Return(test.accepted, test.err)
 
 		_, filename, _, _ := runtime.Caller(0)
 		csvTestFile := path.Join(path.Dir(filename), test.dumpFile)
 		srv := NewImporterService(repo, logger)
-		statistics, err := srv.ImportGeolocationData(csvTestFile)
+		statistics, err := srv.ImportGeolocationData(context.Background(), csvTestFile)
 
 		assert.Nil(t, err)
 		assert.Equal(t, statistics.Accepted, test.accepted)

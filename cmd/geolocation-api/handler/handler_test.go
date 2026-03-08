@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/negroni"
+	"go.uber.org/mock/gomock"
 
 	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 	"github.com/aruna-cande/geolocation/pkg/geolocation/service/mock"
@@ -27,7 +27,7 @@ func TestGetGeolocationByIP(t *testing.T) {
 	assert.Equal(t, "/api/geolocations", path)
 	geoData := domain.NewGeolocation("10.0.0.1", "SI", "Nepal", "DuBuquemouth", "-84.87503094689836", "7.206435933364332", "7823011346")
 	service.EXPECT().
-		GetGeolocationByIP(geoData.IPAddress).
+		GetGeolocationByIP(gomock.Any(), geoData.IPAddress).
 		Return(geoData, nil)
 	handler := GetGeolocationByIP(service)
 	r.Handle("/api/geolocations", handler)

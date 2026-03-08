@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -20,7 +21,7 @@ func NewGeolocationPostgresRepository(pgClient *sql.DB) domain.Repository {
 	}
 }
 
-func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) (int64, error) {
+func (r *postgresRepository) AddGeolocation(ctx context.Context, geolocations []*domain.Geolocation) (int64, error) {
 	var values []string
 	var args []interface{}
 	for _, geolocation := range geolocations {
@@ -36,11 +37,11 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 
 	query := fmt.Sprintf(`INSERT INTO geolocations_data (ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue) Values %s`, strings.Join(values, ","))
 	query = replacePattern(query, "?")
-	stmt, err := r.db.Prepare(strings.TrimSuffix(query, ","))
+	stmt, err := r.db.PrepareContext(ctx, strings.TrimSuffix(query, ","))
 	if err != nil {
 		return int64(len(geolocations)), err
 	}
-	result, err := stmt.Exec(args...)
+	result, err := stmt.ExecContext(ctx, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -52,12 +53,12 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	if err != nil {
 		query = "INSERT INTO geolocations_data (ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue) Values ($1, $2, $3, $4, $5, $6, $7)"
 		for _, geolocation := range geolocations {
-			stmt, err := r.db.Prepare(query)
+			stmt, err := r.db.PrepareContext(ctx, query)
 			if err != nil {
 				continue
 			}
 
-			_, err = stmt.Exec(geolocation.ID, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+			_, err = stmt.ExecContext(ctx, geolocation.ID, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
 			if err != nil {
 				continue
 			}
@@ -77,9 +78,9 @@ func replacePattern(old, searchPattern string) string {
 	return old
 }
 
-func (r *postgresRepository) GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error) {
+func (r *postgresRepository) GetGeolocationByIP(ctx context.Context, ipAddress string) (*domain.Geolocation, error) {
 	var geolocation domain.Geolocation
-	row := r.db.QueryRow("SELECT id, ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue FROM geolocations_data WHERE ipaddress = $1", ipAddress)
+	row := r.db.QueryRowContext(ctx, "SELECT id, ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue FROM geolocations_data WHERE ipaddress = $1", ipAddress)
 
 	err := row.Scan(&geolocation.ID, &geolocation.IPAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, &geolocation.Longitude, &geolocation.MysteryValue)
 	if err != nil {

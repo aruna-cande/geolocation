@@ -1,11 +1,12 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 
 	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 	"github.com/aruna-cande/geolocation/pkg/geolocation/service/mock"
@@ -29,9 +30,9 @@ func TestGeolocationDataService_GetGeolocationByIP(t *testing.T) {
 	repo := mock.NewMockRepository(ctrl)
 
 	for _, test := range tests {
-		repo.EXPECT().GetGeolocationByIP(gomock.Any()).Return(test.geolocation, test.error)
+		repo.EXPECT().GetGeolocationByIP(gomock.Any(), gomock.Any()).Return(test.geolocation, test.error)
 		service := NewGeolocationDataService(repo)
-		geoData, err := service.GetGeolocationByIP(test.ipAddress)
+		geoData, err := service.GetGeolocationByIP(context.Background(), test.ipAddress)
 
 		assert.Equal(t, test.geolocation, geoData)
 		assert.Equal(t, test.error, err)

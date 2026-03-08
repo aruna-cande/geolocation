@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"os"
@@ -31,7 +32,7 @@ func main() {
 	defer db.Close()
 
 	srcPath := os.Args[1]
-	importGeolocationData(srcPath, db, logger)
+	importGeolocationData(context.Background(), srcPath, db, logger)
 }
 
 // connectWithRetry attempts to initialise the database, retrying with
@@ -53,11 +54,11 @@ func connectWithRetry(dbInit *adapters.DBInitializer, logger *log.Logger) (*sql.
 	return nil, lastErr
 }
 
-func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger) {
+func importGeolocationData(ctx context.Context, srcPath string, db *sql.DB, logger *log.Logger) {
 	logger.Println("starting importer task")
 	repository := adapters.NewGeolocationPostgresRepository(db)
 	srv := service.NewImporterService(repository, logger)
-	statistics, err := srv.ImportGeolocationData(srcPath)
+	statistics, err := srv.ImportGeolocationData(ctx, srcPath)
 
 	if err != nil {
 		logger.Printf("import failed: %v", err)

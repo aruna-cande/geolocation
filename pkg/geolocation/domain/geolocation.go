@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"errors"
 	"net"
 	"strconv"
@@ -70,6 +71,6 @@ func (g *Geolocation) Validate() error {
 // Repository defines the data-access contract for geolocation records.
 // Implementations live in the adapters package.
 type Repository interface {
-	AddGeolocation(geolocations []*Geolocation) (int64, error)
-	GetGeolocationByIP(ipAddress string) (*Geolocation, error)
+	AddGeolocation(ctx context.Context, geolocations []*Geolocation) (int64, error)
+	GetGeolocationByIP(ctx context.Context, ipAddress string) (*Geolocation, error)
 }
