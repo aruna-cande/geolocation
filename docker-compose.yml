@@ -44,7 +44,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./cmd/importer:/usr/src/app
+      - ./cmd/importer:/data
     networks:
       - default
     restart: on-failure
