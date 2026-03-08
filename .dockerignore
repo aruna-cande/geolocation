@@ -1,0 +1,8 @@
+.git
+.github
+.gitignore
+*.md
+LICENSE
+deployment/
+**/*_test.go
+**/testdata/

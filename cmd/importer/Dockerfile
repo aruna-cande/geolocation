@@ -1,13 +1,32 @@
-FROM golang:1.16
+# syntax=docker/dockerfile:1
 
-#will hold geolocation dump_data
-RUN mkdir -p /tmp/data
-RUN echo "deb http://packages.cloud.google.com/apt gcsfuse-jessie main" | tee /etc/apt/sources.list.d/gcsfuse.list \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-    && apt-get update \
-    && apt-get -y install gcsfuse
+# -- Build stage --
+FROM golang:1.23-alpine AS builder
 
-RUN mkdir importer
-COPY . /importer
-WORKDIR /importer/cmd/importer
-RUN go build -o ./app/importer .
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app ./cmd/importer
+
+# -- gcsfuse install stage --
+FROM golang:1.23-alpine AS gcsfuse-builder
+
+RUN apk add --no-cache git fuse
+RUN go install github.com/googlecloudplatform/gcsfuse@latest
+
+# -- Runtime stage --
+FROM alpine:3.20
+
+RUN apk add --no-cache ca-certificates fuse \
+    && addgroup -S app && adduser -S app -G app
+
+COPY --from=gcsfuse-builder /go/bin/gcsfuse /usr/local/bin/gcsfuse
+
+RUN mkdir -p /tmp/data && chown app:app /tmp/data
+
+COPY --from=builder /app /app
+
+USER app
+ENTRYPOINT ["/app"]
