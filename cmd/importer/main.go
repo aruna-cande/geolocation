@@ -1,12 +1,13 @@
 package main
 
 import (
-	"geolocation/pkg/geolocation/adapters"
-	"geolocation/pkg/geolocation/service"
 	"database/sql"
 	"log"
 	"os"
 	"time"
+
+	"github.com/aruna-cande/geolocation/pkg/geolocation/adapters"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/service"
 )
 
 func main() {
@@ -19,8 +20,8 @@ func main() {
 	host := config.PostgresHost
 	port := config.PostgresPort
 
-	initDb := adapters.NewInitDb(user, password, dbname, host, port)
-	db := initDb.InitDatabase()
+	dbInit := adapters.NewDBInitializer(user, password, dbname, host, port)
+	db := dbInit.InitDatabase()
 
 	defer db.Close()
 	srcPath := os.Args[1]
@@ -30,8 +31,8 @@ func main() {
 func importGeolocationData(srcPath string, db *sql.DB, logger *log.Logger) {
 	logger.Println("starting importer task")
 	repository := adapters.NewGeolocationPostgresRepository(db)
-	service := service.NewImporterService(repository, logger)
-	statistics, err := service.ImportGeolocationData(srcPath)
+	srv := service.NewImporterService(repository, logger)
+	statistics, err := srv.ImportGeolocationData(srcPath)
 
 	if err != nil {
 		log.Println(err.Error())

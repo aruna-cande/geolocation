@@ -1,19 +1,21 @@
 package adapters
 
 import (
-	"geolocation/pkg/geolocation/domain"
+	"regexp"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"regexp"
-	"testing"
+
+	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
 func newFixtureGeolocations() []*domain.Geolocation {
 	var geolocations []*domain.Geolocation
 	geoData := &domain.Geolocation{
-		Id:           "123e4567-e89b-12d3-a456-426614174000",
-		IpAddress:    "200.106.141.15",
+		ID:           "123e4567-e89b-12d3-a456-426614174000",
+		IPAddress:    "200.106.141.15",
 		CountryCode:  "SI",
 		Country:      "Nepal",
 		City:         "DuBuquemouth",
@@ -22,8 +24,8 @@ func newFixtureGeolocations() []*domain.Geolocation {
 		MysteryValue: "7823011346",
 	}
 	geoData2 := &domain.Geolocation{
-		Id:           "123e4567-e89b-12d3-a456-426614175000",
-		IpAddress:    "160.103.7.140",
+		ID:           "123e4567-e89b-12d3-a456-426614175000",
+		IPAddress:    "160.103.7.140",
 		CountryCode:  "NI",
 		Country:      "Nicaragua",
 		City:         "New Neva",
@@ -44,19 +46,19 @@ func TestPostgresRepository_AddGeolocation(t *testing.T) {
 	}
 	repo := NewGeolocationPostgresRepository(db)
 
-	query := "INSERT INTO geolocations_data (IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue) Values ($1, $2, $3, $4, $5, $6, $7),($8, $9, $10, $11, $12, $13, $14)"
+	query := "INSERT INTO geolocations_data (ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue) Values ($1, $2, $3, $4, $5, $6, $7),($8, $9, $10, $11, $12, $13, $14)"
 	query = regexp.QuoteMeta(query)
 	prep := mock.ExpectPrepare(query)
-	prep.ExpectExec().WithArgs(geolocations[0].IpAddress, geolocations[0].CountryCode, geolocations[0].Country,
+	prep.ExpectExec().WithArgs(geolocations[0].IPAddress, geolocations[0].CountryCode, geolocations[0].Country,
 		geolocations[0].City, geolocations[0].Latitude, geolocations[0].Longitude, geolocations[0].MysteryValue,
-		geolocations[1].IpAddress, geolocations[1].CountryCode, geolocations[1].Country,
+		geolocations[1].IPAddress, geolocations[1].CountryCode, geolocations[1].Country,
 		geolocations[1].City, geolocations[1].Latitude, geolocations[1].Longitude, geolocations[1].MysteryValue).WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_, err = repo.AddGeolocation(geolocations)
 	assert.NoError(t, err)
 }
 
-func TestPostgresRepository_GetGeolocationByIp(t *testing.T) {
+func TestPostgresRepository_GetGeolocationByIP(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		logrus.Error(err.Error())
@@ -64,13 +66,13 @@ func TestPostgresRepository_GetGeolocationByIp(t *testing.T) {
 	repo := NewGeolocationPostgresRepository(db)
 	geolocations := newFixtureGeolocations()
 
-	query := "SELECT Id, IpAddress, CountryCode, Country, City, Latitude, Longitude, MysteryValue FROM geolocations_data WHERE IpAddress = $1"
-	row := sqlmock.NewRows([]string{"Id", "IpAddress", "CountryCode", "Country", "City", "Latitude", "Longitude", "MysteryValue"}).
-		AddRow(geolocations[0].Id, geolocations[0].IpAddress, geolocations[0].CountryCode, geolocations[0].Country,
+	query := "SELECT id, ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue FROM geolocations_data WHERE ipaddress = $1"
+	row := sqlmock.NewRows([]string{"id", "ipaddress", "countrycode", "country", "city", "latitude", "longitude", "mysteryvalue"}).
+		AddRow(geolocations[0].ID, geolocations[0].IPAddress, geolocations[0].CountryCode, geolocations[0].Country,
 			geolocations[0].City, geolocations[0].Latitude, geolocations[0].Longitude, geolocations[0].MysteryValue)
-	mock.ExpectQuery(query).WithArgs(geolocations[0].IpAddress).WillReturnRows(row)
+	mock.ExpectQuery(query).WithArgs(geolocations[0].IPAddress).WillReturnRows(row)
 
-	geolocation, err := repo.GetGeolocationByIp(geolocations[0].IpAddress)
+	geolocation, err := repo.GetGeolocationByIP(geolocations[0].IPAddress)
 	assert.NotNil(t, geolocation)
 	assert.Nil(t, err)
 }

@@ -1,15 +1,17 @@
 package service
 
 import (
-	"geolocation/pkg/geolocation/adapters"
-	"geolocation/pkg/geolocation/domain"
 	"encoding/csv"
 	"io"
 	"log"
 	"os"
 	"time"
+
+	"github.com/aruna-cande/geolocation/pkg/geolocation/adapters"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
+// ImporterService imports geolocation data from CSV files.
 type ImporterService interface {
 	ImportGeolocationData(filepath string) (Statistics, error)
 }
@@ -19,6 +21,7 @@ type importerService struct {
 	log *log.Logger
 }
 
+// NewImporterService creates a new ImporterService.
 func NewImporterService(repository adapters.Repository, logger *log.Logger) ImporterService {
 	return &importerService{repository, logger}
 }

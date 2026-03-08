@@ -8,7 +8,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type InitDb struct {
+// DBInitializer handles database creation and schema setup.
+type DBInitializer struct {
 	user     string
 	password string
 	dbname   string
@@ -16,8 +17,9 @@ type InitDb struct {
 	port     int64
 }
 
-func NewInitDb(user string, password string, dbname string, host string, port int64) *InitDb {
-	return &InitDb{
+// NewDBInitializer creates a new DBInitializer with the given connection parameters.
+func NewDBInitializer(user string, password string, dbname string, host string, port int64) *DBInitializer {
+	return &DBInitializer{
 		user:     user,
 		password: password,
 		dbname:   dbname,
@@ -26,11 +28,13 @@ func NewInitDb(user string, password string, dbname string, host string, port in
 	}
 }
 
-func (i InitDb) getConnectionString(dbname string) string {
+func (i DBInitializer) getConnectionString(dbname string) string {
 	return fmt.Sprintf("user=%s password=%s host=%s port=%d database=%s sslmode=disable", i.user, i.password, i.host, i.port, dbname)
 }
 
-func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
+// InitDatabase creates the database if it doesn't exist, ensures the schema is
+// in place, and returns an open *sql.DB connection.
+func (i DBInitializer) InitDatabase() (postgresDB *sql.DB) {
 	postgresDB, err := sql.Open("postgres", i.getConnectionString("postgres"))
 	if err != nil {
 		panic(err)
@@ -66,7 +70,7 @@ func (i InitDb) InitDatabase() (postgresDB *sql.DB) {
 	return db
 }
 
-func (i InitDb) createTableGeolocations(db *sql.DB) {
+func (i DBInitializer) createTableGeolocations(db *sql.DB) {
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS geolocations_data (
 		id SERIAL PRIMARY KEY,
