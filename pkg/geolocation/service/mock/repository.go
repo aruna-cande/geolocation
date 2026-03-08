@@ -5,11 +5,12 @@
 package mock
 
 import (
-	reflect "reflect"
+	"context"
+	"reflect"
 
-	gomock "github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 
-	domain "github.com/aruna-cande/geolocation/pkg/geolocation/domain"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
 // MockRepository is a mock of Repository interface.
@@ -36,31 +37,31 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // AddGeolocation mocks base method.
-func (m *MockRepository) AddGeolocation(geolocations []*domain.Geolocation) (int64, error) {
+func (m *MockRepository) AddGeolocation(ctx context.Context, geolocations []*domain.Geolocation) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddGeolocation", geolocations)
+	ret := m.ctrl.Call(m, "AddGeolocation", ctx, geolocations)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddGeolocation indicates an expected call of AddGeolocation.
-func (mr *MockRepositoryMockRecorder) AddGeolocation(geolocations interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) AddGeolocation(ctx, geolocations interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddGeolocation", reflect.TypeOf((*MockRepository)(nil).AddGeolocation), geolocations)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddGeolocation", reflect.TypeOf((*MockRepository)(nil).AddGeolocation), ctx, geolocations)
 }
 
 // GetGeolocationByIP mocks base method.
-func (m *MockRepository) GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error) {
+func (m *MockRepository) GetGeolocationByIP(ctx context.Context, ipAddress string) (*domain.Geolocation, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetGeolocationByIP", ipAddress)
+	ret := m.ctrl.Call(m, "GetGeolocationByIP", ctx, ipAddress)
 	ret0, _ := ret[0].(*domain.Geolocation)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetGeolocationByIP indicates an expected call of GetGeolocationByIP.
-func (mr *MockRepositoryMockRecorder) GetGeolocationByIP(ipAddress interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetGeolocationByIP(ctx, ipAddress interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeolocationByIP", reflect.TypeOf((*MockRepository)(nil).GetGeolocationByIP), ipAddress)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeolocationByIP", reflect.TypeOf((*MockRepository)(nil).GetGeolocationByIP), ctx, ipAddress)
 }

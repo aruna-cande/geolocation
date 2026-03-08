@@ -21,7 +21,7 @@ func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service service.
 func GetGeolocationByIP(service service.GeolocationDataService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ipAddress := r.URL.Query().Get("ipaddress")
-		data, err := service.GetGeolocationByIP(ipAddress)
+		data, err := service.GetGeolocationByIP(r.Context(), ipAddress)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

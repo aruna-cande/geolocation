@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/csv"
 	"io"
 	"log"
@@ -12,7 +13,7 @@ import (
 
 // ImporterService imports geolocation data from CSV files.
 type ImporterService interface {
-	ImportGeolocationData(filepath string) (Statistics, error)
+	ImportGeolocationData(ctx context.Context, filepath string) (Statistics, error)
 }
 
 type importerService struct {
@@ -25,7 +26,7 @@ func NewImporterService(repository domain.Repository, logger *log.Logger) Import
 	return &importerService{repository, logger}
 }
 
-func (s *importerService) ImportGeolocationData(filepath string) (Statistics, error) {
+func (s *importerService) ImportGeolocationData(ctx context.Context, filepath string) (Statistics, error) {
 	started := time.Now()
 	data, err := os.Open(filepath)
 	if err != nil {
@@ -78,7 +79,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 
 	var discardedDb int64
 	for _, chunk := range locationChunks {
-		rowsAffected, err := s.repo.AddGeolocation(chunk)
+		rowsAffected, err := s.repo.AddGeolocation(ctx, chunk)
 		if err != nil {
 			s.log.Println("Failed with error: " + err.Error())
 			discardedDb = discardedDb + int64(len(chunk))

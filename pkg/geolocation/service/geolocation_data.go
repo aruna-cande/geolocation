@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
@@ -11,7 +13,7 @@ import (
 // validation, rate-limiting, or metrics — without coupling those concerns to
 // the handler or repository layers.
 type GeolocationDataService interface {
-	GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error)
+	GetGeolocationByIP(ctx context.Context, ipAddress string) (*domain.Geolocation, error)
 }
 
 type geolocationDataService struct {
@@ -23,8 +25,8 @@ func NewGeolocationDataService(repository domain.Repository) GeolocationDataServ
 	return &geolocationDataService{repository}
 }
 
-func (s *geolocationDataService) GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error) {
-	gsData, err := s.repo.GetGeolocationByIP(ipAddress)
+func (s *geolocationDataService) GetGeolocationByIP(ctx context.Context, ipAddress string) (*domain.Geolocation, error) {
+	gsData, err := s.repo.GetGeolocationByIP(ctx, ipAddress)
 	if err != nil {
 		return nil, err
 	}

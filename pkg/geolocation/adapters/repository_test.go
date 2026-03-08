@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"context"
 	"regexp"
 	"testing"
 
@@ -54,7 +55,7 @@ func TestPostgresRepository_AddGeolocation(t *testing.T) {
 		geolocations[1].IPAddress, geolocations[1].CountryCode, geolocations[1].Country,
 		geolocations[1].City, geolocations[1].Latitude, geolocations[1].Longitude, geolocations[1].MysteryValue).WillReturnResult(sqlmock.NewResult(1, 2))
 
-	_, err = repo.AddGeolocation(geolocations)
+	_, err = repo.AddGeolocation(context.Background(), geolocations)
 	assert.NoError(t, err)
 }
 
@@ -72,7 +73,7 @@ func TestPostgresRepository_GetGeolocationByIP(t *testing.T) {
 			geolocations[0].City, geolocations[0].Latitude, geolocations[0].Longitude, geolocations[0].MysteryValue)
 	mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(geolocations[0].IPAddress).WillReturnRows(row)
 
-	geolocation, err := repo.GetGeolocationByIP(geolocations[0].IPAddress)
+	geolocation, err := repo.GetGeolocationByIP(context.Background(), geolocations[0].IPAddress)
 	assert.NotNil(t, geolocation)
 	assert.Nil(t, err)
 }
