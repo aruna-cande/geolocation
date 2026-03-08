@@ -53,6 +53,7 @@ func (i DBInitializer) InitDatabase() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("preparing database check query: %w", err)
 	}
+	defer stmt.Close()
 
 	var result string
 	err = stmt.QueryRow().Scan(&result)

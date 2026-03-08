@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
@@ -43,7 +42,7 @@ func TestPostgresRepository_AddGeolocation(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		logrus.Error(err.Error())
+		t.Fatalf("failed to create sqlmock: %v", err)
 	}
 	repo := NewGeolocationPostgresRepository(db)
 
@@ -62,7 +61,7 @@ func TestPostgresRepository_AddGeolocation(t *testing.T) {
 func TestPostgresRepository_GetGeolocationByIP(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		logrus.Error(err.Error())
+		t.Fatalf("failed to create sqlmock: %v", err)
 	}
 	repo := NewGeolocationPostgresRepository(db)
 	geolocations := newFixtureGeolocations()
