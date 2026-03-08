@@ -31,6 +31,9 @@ func main() {
 	}
 	defer db.Close()
 
+	if len(os.Args) < 2 {
+		logger.Fatal("usage: importer <csv-file>")
+	}
 	srcPath := os.Args[1]
 	importGeolocationData(context.Background(), srcPath, db, logger)
 }

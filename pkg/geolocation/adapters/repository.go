@@ -41,14 +41,13 @@ func (r *postgresRepository) AddGeolocation(ctx context.Context, geolocations []
 	if err != nil {
 		return int64(len(geolocations)), err
 	}
+	defer stmt.Close()
+
 	result, err := stmt.ExecContext(ctx, args...)
 	if err != nil {
 		return 0, err
 	}
-	err = stmt.Close()
-	if err != nil {
-		return 0, err
-	}
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		query = "INSERT INTO geolocations_data (ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue) Values ($1, $2, $3, $4, $5, $6, $7)"
@@ -58,7 +57,8 @@ func (r *postgresRepository) AddGeolocation(ctx context.Context, geolocations []
 				continue
 			}
 
-			_, err = stmt.ExecContext(ctx, geolocation.ID, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+			_, err = stmt.ExecContext(ctx, geolocation.IPAddress, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+			stmt.Close()
 			if err != nil {
 				continue
 			}

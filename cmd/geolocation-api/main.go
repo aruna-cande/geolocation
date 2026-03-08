@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 
@@ -48,7 +47,7 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		Addr:         fmt.Sprintf(":%d", config.APIPort),
-		Handler:      context.ClearHandler(http.DefaultServeMux),
+		Handler:      http.DefaultServeMux,
 		ErrorLog:     logger,
 	}
 	if err := srv.ListenAndServe(); err != nil {
