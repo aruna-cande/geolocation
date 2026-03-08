@@ -9,18 +9,12 @@ import (
 	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
-// Repository defines the data-access interface for geolocation records.
-type Repository interface {
-	AddGeolocation(geolocations []*domain.Geolocation) (int64, error)
-	GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error)
-}
-
 type postgresRepository struct {
 	db *sql.DB
 }
 
-// NewGeolocationPostgresRepository returns a Repository backed by PostgreSQL.
-func NewGeolocationPostgresRepository(pgClient *sql.DB) Repository {
+// NewGeolocationPostgresRepository returns a domain.Repository backed by PostgreSQL.
+func NewGeolocationPostgresRepository(pgClient *sql.DB) domain.Repository {
 	return &postgresRepository{
 		db: pgClient,
 	}

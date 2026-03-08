@@ -66,3 +66,10 @@ func (g *Geolocation) Validate() error {
 	}
 	return nil
 }
+
+// Repository defines the data-access contract for geolocation records.
+// Implementations live in the adapters package.
+type Repository interface {
+	AddGeolocation(geolocations []*Geolocation) (int64, error)
+	GetGeolocationByIP(ipAddress string) (*Geolocation, error)
+}

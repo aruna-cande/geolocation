@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/aruna-cande/geolocation/pkg/geolocation/adapters"
 	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
@@ -17,12 +16,12 @@ type ImporterService interface {
 }
 
 type importerService struct {
-	fr  adapters.Repository
-	log *log.Logger
+	repo domain.Repository
+	log  *log.Logger
 }
 
 // NewImporterService creates a new ImporterService.
-func NewImporterService(repository adapters.Repository, logger *log.Logger) ImporterService {
+func NewImporterService(repository domain.Repository, logger *log.Logger) ImporterService {
 	return &importerService{repository, logger}
 }
 
@@ -79,7 +78,7 @@ func (s *importerService) ImportGeolocationData(filepath string) (Statistics, er
 
 	var discardedDb int64
 	for _, chunk := range locationChunks {
-		rowsAffected, err := s.fr.AddGeolocation(chunk)
+		rowsAffected, err := s.repo.AddGeolocation(chunk)
 		if err != nil {
 			s.log.Println("Failed with error: " + err.Error())
 			discardedDb = discardedDb + int64(len(chunk))

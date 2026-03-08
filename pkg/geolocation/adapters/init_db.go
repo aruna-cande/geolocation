@@ -3,9 +3,13 @@ package adapters
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 
 	_ "github.com/lib/pq"
 )
+
+// dbNamePattern restricts database names to safe characters only.
+var dbNamePattern = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
 // DBInitializer handles database creation and schema setup.
 type DBInitializer struct {
@@ -34,6 +38,10 @@ func (i DBInitializer) getConnectionString(dbname string) string {
 // InitDatabase creates the database if it doesn't exist, ensures the schema is
 // in place, and returns an open *sql.DB connection.
 func (i DBInitializer) InitDatabase() (*sql.DB, error) {
+	if !dbNamePattern.MatchString(i.dbname) {
+		return nil, fmt.Errorf("invalid database name %q: must contain only letters, digits, and underscores", i.dbname)
+	}
+
 	postgresDB, err := sql.Open("postgres", i.getConnectionString("postgres"))
 	if err != nil {
 		return nil, fmt.Errorf("connecting to postgres: %w", err)
