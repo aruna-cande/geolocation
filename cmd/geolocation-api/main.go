@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-	"geolocation/cmd/geolocation-api/handler"
-	"geolocation/pkg/geolocation/adapters"
-	"geolocation/pkg/geolocation/service"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +10,10 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
+
+	"github.com/aruna-cande/geolocation/cmd/geolocation-api/handler"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/adapters"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/service"
 )
 
 func main() {
@@ -25,8 +26,8 @@ func main() {
 	port := config.PostgresPort
 	apiPort := config.APIPort
 
-	initDb := adapters.NewInitDb(user, password, dbname, host, port)
-	db := initDb.InitDatabase()
+	dbInit := adapters.NewDBInitializer(user, password, dbname, host, port)
+	db := dbInit.InitDatabase()
 
 	postgresRepository := adapters.NewGeolocationPostgresRepository(db)
 	geolocationService := service.NewGeolocationDataService(postgresRepository)
@@ -34,7 +35,7 @@ func main() {
 	r := mux.NewRouter()
 
 	n := negroni.New(
-		negroni.HandlerFunc(Cors),
+		negroni.HandlerFunc(cors),
 		negroni.NewLogger(),
 	)
 
@@ -54,7 +55,7 @@ func main() {
 	}
 }
 
-func Cors(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func cors(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")

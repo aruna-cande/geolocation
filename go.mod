@@ -1,4 +1,4 @@
-module geolocation
+module github.com/aruna-cande/geolocation
 
 go 1.16
 

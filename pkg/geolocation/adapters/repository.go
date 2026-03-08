@@ -3,23 +3,24 @@ package adapters
 import (
 	"database/sql"
 	"fmt"
-	"geolocation/pkg/geolocation/domain"
 	"strconv"
 	"strings"
+
+	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
+// Repository defines the data-access interface for geolocation records.
 type Repository interface {
 	AddGeolocation(geolocations []*domain.Geolocation) (int64, error)
-	GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error)
+	GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error)
 }
 
 type postgresRepository struct {
 	db *sql.DB
 }
 
-func NewGeolocationPostgresRepository(
-	pgClient *sql.DB,
-) Repository {
+// NewGeolocationPostgresRepository returns a Repository backed by PostgreSQL.
+func NewGeolocationPostgresRepository(pgClient *sql.DB) Repository {
 	return &postgresRepository{
 		db: pgClient,
 	}
@@ -30,7 +31,7 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 	var args []interface{}
 	for _, geolocation := range geolocations {
 		values = append(values, "(?, ?, ?, ?, ?, ?, ?)")
-		args = append(args, geolocation.IpAddress)
+		args = append(args, geolocation.IPAddress)
 		args = append(args, geolocation.CountryCode)
 		args = append(args, geolocation.Country)
 		args = append(args, geolocation.City)
@@ -62,7 +63,7 @@ func (r *postgresRepository) AddGeolocation(geolocations []*domain.Geolocation) 
 				continue
 			}
 
-			_, err = stmt.Exec(geolocation.Id, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
+			_, err = stmt.Exec(geolocation.ID, geolocation.CountryCode, geolocation.Country, geolocation.City, geolocation.Latitude, geolocation.Longitude, geolocation.MysteryValue)
 			if err != nil {
 				continue
 			}
@@ -82,11 +83,11 @@ func replacePattern(old, searchPattern string) string {
 	return old
 }
 
-func (r *postgresRepository) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
+func (r *postgresRepository) GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error) {
 	var geolocation domain.Geolocation
 	row := r.db.QueryRow("SELECT id, ipaddress, countrycode, country, city, latitude, longitude, mysteryvalue FROM geolocations_data WHERE ipaddress = $1", ipAddress)
 
-	err := row.Scan(&geolocation.Id, &geolocation.IpAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, &geolocation.Longitude, &geolocation.MysteryValue)
+	err := row.Scan(&geolocation.ID, &geolocation.IPAddress, &geolocation.CountryCode, &geolocation.Country, &geolocation.City, &geolocation.Latitude, &geolocation.Longitude, &geolocation.MysteryValue)
 	if err == sql.ErrNoRows {
 		return nil, err
 	}

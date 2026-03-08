@@ -1,29 +1,29 @@
 package service
 
 import (
-	"geolocation/pkg/geolocation/adapters"
-	"geolocation/pkg/geolocation/domain"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/adapters"
+	"github.com/aruna-cande/geolocation/pkg/geolocation/domain"
 )
 
+// GeolocationDataService provides read access to geolocation records.
 type GeolocationDataService interface {
-	GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error)
+	GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error)
 }
 
 type geolocationDataService struct {
 	fr adapters.Repository
 }
 
+// NewGeolocationDataService creates a new GeolocationDataService.
 func NewGeolocationDataService(repository adapters.Repository) GeolocationDataService {
 	return &geolocationDataService{repository}
 }
 
-func (s *geolocationDataService) GetGeolocationByIp(ipAddress string) (*domain.Geolocation, error) {
-	gsData, err := s.fr.GetGeolocationByIp(ipAddress)
-
+func (s *geolocationDataService) GetGeolocationByIP(ipAddress string) (*domain.Geolocation, error) {
+	gsData, err := s.fr.GetGeolocationByIP(ipAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	return gsData, nil
-
 }

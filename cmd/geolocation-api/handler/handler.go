@@ -2,23 +2,26 @@ package handler
 
 import (
 	"encoding/json"
-	"geolocation/pkg/geolocation/service"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
+
+	"github.com/aruna-cande/geolocation/pkg/geolocation/service"
 )
 
+// CreateGeolocationHandler registers the geolocation routes on the router.
 func CreateGeolocationHandler(r *mux.Router, n negroni.Negroni, service service.GeolocationDataService) {
 	r.Handle("/api/geolocations", n.With(
-		negroni.Wrap(GetGeolocationByIp(service)),
-	)).Methods("GET", "OPTIONS").Name("GetGeolocationByIp")
+		negroni.Wrap(GetGeolocationByIP(service)),
+	)).Methods("GET", "OPTIONS").Name("GetGeolocationByIP")
 }
 
-func GetGeolocationByIp(service service.GeolocationDataService) http.Handler {
+// GetGeolocationByIP returns an HTTP handler that looks up geolocation by IP.
+func GetGeolocationByIP(service service.GeolocationDataService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ipAddress := r.URL.Query().Get("ipaddress")
-		data, err := service.GetGeolocationByIp(ipAddress)
+		data, err := service.GetGeolocationByIP(ipAddress)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -33,7 +36,7 @@ func GetGeolocationByIp(service service.GeolocationDataService) http.Handler {
 		}
 
 		geoData := &geolocationResult{
-			IpAddress:   data.IpAddress,
+			IPAddress:   data.IPAddress,
 			CountryCode: data.CountryCode,
 			Country:     data.Country,
 			City:        data.City,
