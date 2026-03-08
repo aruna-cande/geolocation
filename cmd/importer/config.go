@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 )
 
+// Config holds the application configuration for the importer.
 type Config struct {
 	PostgresUser     string
 	PostgresPassword string
@@ -13,10 +15,12 @@ type Config struct {
 	PostgresPort     int64
 }
 
-func NewConfig() Config {
+// NewConfig reads configuration from environment variables.
+// Returns an error if required numeric values cannot be parsed.
+func NewConfig() (Config, error) {
 	port, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"), 10, 64)
 	if err != nil {
-		return Config{}
+		return Config{}, fmt.Errorf("parsing POSTGRES_PORT: %w", err)
 	}
 	return Config{
 		PostgresUser:     os.Getenv("POSTGRES_USER"),
@@ -24,5 +28,5 @@ func NewConfig() Config {
 		PostgresDb:       os.Getenv("POSTGRES_DB"),
 		PostgresHost:     os.Getenv("POSTGRES_HOST"),
 		PostgresPort:     port,
-	}
+	}, nil
 }

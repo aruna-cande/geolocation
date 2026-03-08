@@ -70,7 +70,7 @@ func TestPostgresRepository_GetGeolocationByIP(t *testing.T) {
 	row := sqlmock.NewRows([]string{"id", "ipaddress", "countrycode", "country", "city", "latitude", "longitude", "mysteryvalue"}).
 		AddRow(geolocations[0].ID, geolocations[0].IPAddress, geolocations[0].CountryCode, geolocations[0].Country,
 			geolocations[0].City, geolocations[0].Latitude, geolocations[0].Longitude, geolocations[0].MysteryValue)
-	mock.ExpectQuery(query).WithArgs(geolocations[0].IPAddress).WillReturnRows(row)
+	mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(geolocations[0].IPAddress).WillReturnRows(row)
 
 	geolocation, err := repo.GetGeolocationByIP(geolocations[0].IPAddress)
 	assert.NotNil(t, geolocation)

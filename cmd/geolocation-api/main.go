@@ -18,16 +18,18 @@ import (
 
 func main() {
 	var logger = log.New(os.Stderr, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
-	config := NewConfig()
-	user := config.PostgresUser
-	password := config.PostgresPassword
-	dbname := config.PostgresDb
-	host := config.PostgresHost
-	port := config.PostgresPort
-	apiPort := config.APIPort
 
-	dbInit := adapters.NewDBInitializer(user, password, dbname, host, port)
-	db := dbInit.InitDatabase()
+	config, err := NewConfig()
+	if err != nil {
+		logger.Fatalf("failed to load config: %v", err)
+	}
+
+	dbInit := adapters.NewDBInitializer(config.PostgresUser, config.PostgresPassword, config.PostgresDb, config.PostgresHost, config.PostgresPort)
+	db, err := dbInit.InitDatabase()
+	if err != nil {
+		logger.Fatalf("failed to initialize database: %v", err)
+	}
+	defer db.Close()
 
 	postgresRepository := adapters.NewGeolocationPostgresRepository(db)
 	geolocationService := service.NewGeolocationDataService(postgresRepository)
@@ -45,12 +47,11 @@ func main() {
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		Addr:         fmt.Sprintf(":%d", apiPort),
+		Addr:         fmt.Sprintf(":%d", config.APIPort),
 		Handler:      context.ClearHandler(http.DefaultServeMux),
 		ErrorLog:     logger,
 	}
-	err := srv.ListenAndServe()
-	if err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		logger.Fatal(err.Error())
 	}
 }

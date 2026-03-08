@@ -24,17 +24,16 @@ func GetGeolocationByIP(service service.GeolocationDataService) http.Handler {
 		data, err := service.GetGeolocationByIP(ipAddress)
 
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if data == nil {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("geolocation not found"))
+			http.Error(w, "geolocation not found", http.StatusNotFound)
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		geoData := &geolocationResult{
 			IPAddress:   data.IPAddress,
 			CountryCode: data.CountryCode,
@@ -44,8 +43,7 @@ func GetGeolocationByIP(service service.GeolocationDataService) http.Handler {
 			Longitude:   data.Longitude,
 		}
 		if err := json.NewEncoder(w).Encode(geoData); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
 }
